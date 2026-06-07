@@ -1,0 +1,75 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { ImageOff } from "lucide-react";
+import type { Product } from "../types";
+
+interface ProductCardProps {
+  product: Product;
+}
+
+const roastingStyle: Record<Product["roasting"], string> = {
+  라이트: "bg-white/20 text-white",
+  미디엄: "bg-white/20 text-white",
+  다크: "bg-white/20 text-white",
+};
+
+export default function ProductCard({ product }: ProductCardProps) {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <Link href={`/products/${product.id}`} className="relative aspect-[3/4] rounded-2xl overflow-hidden group cursor-pointer block">
+      {/* Background: image or placeholder */}
+      {!imgError ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={product.thumbnailUrl}
+          alt={product.name}
+          className="absolute inset-12 w-[calc(100%-6rem)] h-[calc(100%-6rem)] object-contain group-hover:scale-105 transition-transform duration-500"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-stone-300 flex items-center justify-center">
+          <ImageOff size={40} className="text-stone-400" />
+        </div>
+      )}
+
+      {/* Dark gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 from-0% via-black/30 via-[20%] to-transparent to-[50%]" />
+
+      {/* Text overlay — bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col gap-2">
+        {/* Tags */}
+        <div className="flex flex-wrap gap-1.5">
+          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border border-white/30 ${roastingStyle[product.roasting]}`}>
+            {product.roasting}
+          </span>
+          {product.acidity && (
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border border-white/30 bg-white/20 text-white">
+              산미
+            </span>
+          )}
+          {product.isDecaf && (
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border border-white/30 bg-white/20 text-white">
+              디카페인
+            </span>
+          )}
+        </div>
+
+        {/* Name */}
+        <h3 className="text-white font-bold text-lg leading-snug">{product.name}</h3>
+
+        {/* Description */}
+        <p className="text-white/75 text-sm">{product.shortDescription}</p>
+
+        {/* Arrow */}
+        <div className="flex justify-end mt-1">
+          <span className="text-white/80 text-xl group-hover:translate-x-1 transition-transform inline-block">
+            →
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
