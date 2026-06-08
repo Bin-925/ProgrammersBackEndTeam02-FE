@@ -1,4 +1,4 @@
-export type OrderStatus   = "PROCESSING" | "SHIPPING" | "DELIVERED" | "CANCELLED";
+export type OrderStatus   = "PENDING" | "PROCESSING" | "SHIPPING" | "DELIVERED" | "CANCELLED";
 export type RoastingLevel = "LIGHT" | "MEDIUM" | "DARK";
 
 export interface Order {
@@ -9,13 +9,13 @@ export interface Order {
   orderStatus: OrderStatus;
   totalPrice: number;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface Product {
   id: number;
   productName: string;
-  decaf: boolean;          // Jackson이 isDecaf → decaf 로 직렬화
+  decaf: boolean;
   roastingLevel: RoastingLevel;
   acidity: boolean;
   productPrice: number;

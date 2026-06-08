@@ -1,4 +1,4 @@
-import type { ProductDetail } from "../types";
+import type { FlavorProfile } from "../types";
 
 function ReadOnlySlider({
   value,
@@ -36,7 +36,7 @@ function ReadOnlySlider({
 export default function FlavorProfileSection({
   flavorProfile,
 }: {
-  flavorProfile: ProductDetail["flavorProfile"];
+  flavorProfile: FlavorProfile;
 }) {
   return (
     <section className="bg-white py-16">

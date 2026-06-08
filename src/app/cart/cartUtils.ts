@@ -1,41 +1,77 @@
-import type { CartItem } from "./types";
+import type { CartDisplayItem, CartResponse } from "./types";
 
-const CART_KEY = "cozy_cart";
+const SELECTED_KEY = "cozy_cart_selected";
 
-export function getCart(): CartItem[] {
+// ── 선택 상태 (localStorage) ───────────────────────────
+
+export function getSelectedIds(): number[] {
   if (typeof window === "undefined") return [];
   try {
-    const stored = localStorage.getItem(CART_KEY);
-    return stored ? JSON.parse(stored) : [];
+    return JSON.parse(localStorage.getItem(SELECTED_KEY) || "[]");
   } catch {
     return [];
   }
 }
 
-export function saveCart(items: CartItem[]): void {
-  localStorage.setItem(CART_KEY, JSON.stringify(items));
-  window.dispatchEvent(new Event("cartUpdated"));
+export function saveSelectedIds(ids: number[]): void {
+  localStorage.setItem(SELECTED_KEY, JSON.stringify(ids));
 }
 
-export function addToCart(
-  product: { id: number; name: string; price: number; thumbnailUrl: string },
-  quantity: number
-): void {
-  // TODO: 추후 POST /api/cart 로 교체 예정
-  const cart = getCart();
-  const existing = cart.find((item) => item.productId === product.id);
-  if (existing) {
-    existing.quantity += quantity;
-  } else {
-    cart.push({
-      cartId: String(product.id),
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      thumbnailUrl: product.thumbnailUrl,
-      quantity,
-      selected: true,
-    });
+// ── API 호출 ──────────────────────────────────────────
+
+export async function fetchCart(): Promise<CartDisplayItem[]> {
+  const res = await fetch("/api/cart");
+  if (!res.ok) throw new Error("장바구니 조회 실패");
+  const data: CartResponse = await res.json();
+  const selectedIds = getSelectedIds();
+  return data.items.map((item) => ({
+    cartItemId: item.cartItemId,
+    productId: item.productId,
+    name: item.productName,
+    price: item.productPrice,
+    thumbnailUrl: item.thumbnailImageUrl,
+    quantity: item.quantity,
+    itemTotalPrice: item.itemTotalPrice,
+    selected: selectedIds.length === 0 || selectedIds.includes(item.cartItemId),
+  }));
+}
+
+export async function addToCart(productId: number, quantity: number): Promise<void> {
+  const res = await fetch("/api/cart/items", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ productId, quantity }),
+  });
+  if (!res.ok) throw new Error("장바구니 추가 실패");
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("cartUpdated"));
   }
-  saveCart(cart);
+}
+
+export async function removeCartItem(cartItemId: number): Promise<void> {
+  const res = await fetch(`/cart/items/${cartItemId}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("장바구니 항목 삭제 실패");
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("cartUpdated"));
+  }
+}
+
+export async function updateCartItemQty(cartItemId: number, quantity: number): Promise<void> {
+  const res = await fetch(`/cart/items/${cartItemId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ quantity }),
+  });
+  if (!res.ok) throw new Error("수량 변경 실패");
+}
+
+export async function getCartCount(): Promise<number> {
+  try {
+    const res = await fetch("/api/cart");
+    if (!res.ok) return 0;
+    const data: CartResponse = await res.json();
+    return data.items.reduce((sum, item) => sum + item.quantity, 0);
+  } catch {
+    return 0;
+  }
 }

@@ -1,4 +1,4 @@
-import type { ProductDetail } from "../types";
+import type { BlendStory } from "../types";
 
 export default function BlendStorySection({
   name,
@@ -6,7 +6,7 @@ export default function BlendStorySection({
   thumbnailUrl,
 }: {
   name: string;
-  story: ProductDetail["blendStory"];
+  story: BlendStory;
   thumbnailUrl: string;
 }) {
   const paragraphs = story.content.split("\n\n");

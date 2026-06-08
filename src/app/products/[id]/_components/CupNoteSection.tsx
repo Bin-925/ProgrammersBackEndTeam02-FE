@@ -1,4 +1,4 @@
-import type { ProductDetail } from "../types";
+import type { CupNote, CupNoteScores } from "../types";
 
 function CoffeeBean({ filled }: { filled: boolean }) {
   return (
@@ -21,7 +21,7 @@ function CoffeeBean({ filled }: { filled: boolean }) {
   );
 }
 
-const metrics: { label: string; key: keyof ProductDetail["cupNote"]["scores"] }[] = [
+const metrics: { label: string; key: keyof CupNoteScores }[] = [
   { label: "Overall", key: "overall" },
   { label: "Body", key: "body" },
   { label: "Acidity", key: "acidity" },
@@ -30,7 +30,7 @@ const metrics: { label: string; key: keyof ProductDetail["cupNote"]["scores"] }[
   { label: "Sweetness", key: "sweetness" },
 ];
 
-export default function CupNoteSection({ cupNote }: { cupNote: ProductDetail["cupNote"] }) {
+export default function CupNoteSection({ cupNote }: { cupNote: CupNote }) {
   return (
     <section className="bg-stone-50 py-16">
       <div className="max-w-6xl mx-auto px-8">

@@ -36,10 +36,15 @@ export default function AdminPage() {
   }, []);
 
   // ─── 파생 값 ─────────────────────────────────────────
-  const today       = new Date().toISOString().split("T")[0];
-  const todayOrders = orders.filter(o => o.createdAt.startsWith(today));
-  const pendingCount = orders.filter(o => o.orderStatus === "PROCESSING").length;
-  const todayRevenue = todayOrders.reduce((sum, o) => sum + o.totalPrice, 0);
+  const today       = new Date().toLocaleDateString("sv"); // 로컬(KST) 날짜 "YYYY-MM-DD"
+  const todayOrders = orders.filter(o => {
+    // 백엔드가 UTC LocalDateTime을 Z 없이 내려주므로 강제로 UTC 파싱
+    const utcStr = o.createdAt.endsWith("Z") ? o.createdAt : o.createdAt + "Z";
+    const orderDate = new Date(utcStr).toLocaleDateString("sv");
+    return orderDate === today;
+  });
+  const pendingCount = orders.filter(o => o.orderStatus === "PENDING" || o.orderStatus === "PROCESSING").length;
+  const todayRevenue = todayOrders.filter(o => o.orderStatus !== "CANCELLED").reduce((sum, o) => sum + o.totalPrice, 0);
   const filteredOrders = orders.filter(o =>
     filterStatus === "전체" || o.orderStatus === filterStatus
   );
@@ -130,7 +135,6 @@ export default function AdminPage() {
             {page === "dashboard" && (
               <DashboardTab
                 todayOrders={todayOrders}
-                pendingCount={pendingCount}
                 todayRevenue={todayRevenue}
                 onViewAllOrders={() => setPage("orders")}
               />

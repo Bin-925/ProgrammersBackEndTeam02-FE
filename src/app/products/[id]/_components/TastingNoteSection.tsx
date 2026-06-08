@@ -59,9 +59,9 @@ function TastingChart({
       </text>
 
       {/* Product dots */}
-      {products.map((p) => {
-        const cx = PAD + (p.tastingNote.x / 100) * PLOT;
-        const cy = PAD + (p.tastingNote.y / 100) * PLOT;
+      {products.filter((p) => p.tastingNote).map((p) => {
+        const cx = PAD + (p.tastingNote!.x / 100) * PLOT;
+        const cy = PAD + (p.tastingNote!.y / 100) * PLOT;
         const isCurrent = p.id === currentId;
 
         return (

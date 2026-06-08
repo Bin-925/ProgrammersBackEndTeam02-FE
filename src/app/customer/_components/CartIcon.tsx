@@ -3,24 +3,21 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
-import { getCart } from "../../cart/cartUtils";
+import { getCartCount } from "../../cart/cartUtils";
 
 export default function CartIcon() {
   const [count, setCount] = useState(0);
 
-  const refresh = () => {
-    const cart = getCart();
-    const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const refresh = async () => {
+    const total = await getCartCount();
     setCount(total);
   };
 
   useEffect(() => {
     refresh();
     window.addEventListener("cartUpdated", refresh);
-    window.addEventListener("storage", refresh);
     return () => {
       window.removeEventListener("cartUpdated", refresh);
-      window.removeEventListener("storage", refresh);
     };
   }, []);
 
