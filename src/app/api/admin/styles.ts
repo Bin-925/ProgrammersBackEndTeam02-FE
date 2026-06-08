@@ -1,10 +1,10 @@
 import { ROAST_COLORS, STATUS_COLORS } from "./constants";
 
 export const styles = {
-  root:            { display: "flex", height: "100vh", fontFamily: "'Noto Sans KR', 'Georgia', serif", background: "#f5f0eb", color: "#2c1a0e", overflow: "hidden" },
+  root:            { display: "flex", height: "100vh", background: "#f5f0eb", color: "#2c1a0e", overflow: "hidden" },
   sidebar:         { width: 210, background: "linear-gradient(180deg, #1e3a1e 0%, #2d5a1b 100%)", display: "flex", flexDirection: "column" as const, padding: "24px 0", flexShrink: 0 },
   logo:            { padding: "0 20px 28px", borderBottom: "1px solid rgba(255,255,255,0.1)" },
-  logoTitle:       { fontSize: 17, fontWeight: 700, color: "#f0e6d3", letterSpacing: "-0.3px", fontFamily: "'Georgia', serif" },
+  logoTitle:       { fontSize: 17, fontWeight: 700, color: "#f0e6d3", letterSpacing: "-0.3px" },
   logoSub:         { fontSize: 11, color: "rgba(240,230,211,0.55)", marginTop: 2 },
   nav:             { padding: "20px 12px", flex: 1, display: "flex", flexDirection: "column" as const, gap: 4 },
   navItem:         (active: boolean) => ({
@@ -19,7 +19,7 @@ export const styles = {
   sidebarLink:     { fontSize: 12, color: "rgba(240,230,211,0.5)", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 },
   main:            { flex: 1, overflowY: "auto" as const, padding: "32px 36px" },
   pageHeader:      { marginBottom: 28 },
-  pageTitle:       { fontSize: 26, fontWeight: 700, color: "#1e3a1e", fontFamily: "'Georgia', serif" },
+  pageTitle:       { fontSize: 26, fontWeight: 700, color: "#1e3a1e" },
   pageSubtitle:    { fontSize: 13, color: "#7a6a5a", marginTop: 4 },
   statGrid:        { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 },
   statCard:        { background: "#fff", borderRadius: 12, padding: "20px 22px", boxShadow: "0 1px 4px rgba(0,0,0,0.07)", border: "1px solid #e8e0d8" },
@@ -61,7 +61,7 @@ export const styles = {
   tag:             { display: "inline-block", background: "#f0ebe4", color: "#5a4a3a", borderRadius: 4, padding: "2px 7px", fontSize: 11, marginRight: 4 },
   modal:           { position: "fixed" as const, inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 },
   modalBox:        { background: "#fff", borderRadius: 14, padding: "32px", width: 520, boxShadow: "0 8px 32px rgba(0,0,0,0.18)" },
-  modalTitle:      { fontSize: 18, fontWeight: 700, color: "#1e3a1e", marginBottom: 24, fontFamily: "'Georgia', serif" },
+  modalTitle:      { fontSize: 18, fontWeight: 700, color: "#1e3a1e", marginBottom: 24 },
   formGroup:       { marginBottom: 16 },
   formLabel:       { display: "block", fontSize: 12, fontWeight: 600, color: "#6a5a4a", marginBottom: 6 },
   formInput:       { width: "100%", padding: "8px 12px", borderRadius: 7, border: "1px solid #ddd5cc", fontSize: 13, boxSizing: "border-box" as const, outline: "none" },

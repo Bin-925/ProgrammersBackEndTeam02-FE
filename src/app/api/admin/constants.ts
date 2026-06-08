@@ -1,6 +1,7 @@
 import type { OrderStatus, RoastingLevel } from "./types";
 
 export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
+  PENDING:    "대기 중",
   PROCESSING: "처리 중",
   SHIPPING:   "배송 중",
   DELIVERED:  "배송 완료",
@@ -14,6 +15,7 @@ export const ROASTING_LEVEL_LABEL: Record<RoastingLevel, string> = {
 };
 
 export const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
+  PENDING:    { bg: "#f5f5f5", color: "#757575" },
   PROCESSING: { bg: "#e3f2fd", color: "#1565c0" },
   SHIPPING:   { bg: "#fff3e0", color: "#e65100" },
   DELIVERED:  { bg: "#e8f5e9", color: "#2e7d32" },
@@ -32,5 +34,5 @@ export const NAV_ITEMS = [
   { id: "menu",      label: "메뉴 관리", icon: "☕" },
 ] as const;
 
-export const ORDER_STATUSES: OrderStatus[]     = ["PROCESSING", "SHIPPING", "DELIVERED", "CANCELLED"];
+export const ORDER_STATUSES: OrderStatus[]     = ["PENDING", "PROCESSING", "SHIPPING", "DELIVERED", "CANCELLED"];
 export const ROASTING_LEVELS: RoastingLevel[]  = ["LIGHT", "MEDIUM", "DARK"];

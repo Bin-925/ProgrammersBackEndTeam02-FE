@@ -30,14 +30,20 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
   const [qty, setQty] = useState(1);
   const [imgError, setImgError] = useState(false);
   const [toast, setToast] = useState(false);
+  const [adding, setAdding] = useState(false);
 
-  const handleAddToCart = () => {
-    addToCart(
-      { id: product.id, name: product.name, price: product.price, thumbnailUrl: product.thumbnailUrl },
-      qty
-    );
-    setToast(true);
-    setTimeout(() => setToast(false), 3000);
+  const handleAddToCart = async () => {
+    if (adding) return;
+    setAdding(true);
+    try {
+      await addToCart(product.id, qty);
+      setToast(true);
+      setTimeout(() => setToast(false), 3000);
+    } catch {
+      alert("장바구니 추가에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setAdding(false);
+    }
   };
 
   return (
@@ -121,15 +127,20 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
 
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 border-stone-900 text-stone-900 font-semibold hover:bg-stone-50 transition-colors text-sm"
+                  disabled={adding}
+                  className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 border-stone-900 text-stone-900 font-semibold hover:bg-stone-50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart size={16} />
-                  장바구니 담기
+                  {adding ? "담는 중..." : "장바구니 담기"}
                 </button>
               </div>
 
               {/* Buy now */}
-              <button className="w-full h-12 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors">
+              <button
+                onClick={handleAddToCart}
+                disabled={adding}
+                className="w-full h-12 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 바로 구매하기
               </button>
             </div>

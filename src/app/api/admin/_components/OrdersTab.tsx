@@ -1,3 +1,6 @@
+"use client";
+
+import { useRef, useState, useEffect } from "react";
 import { ORDER_STATUSES, ORDER_STATUS_LABEL } from "../constants";
 import { styles } from "../styles";
 import type { Order, OrderStatus } from "../types";
@@ -11,6 +14,11 @@ interface OrdersTabProps {
   onDropdownToggle: (orderId: number | null) => void;
 }
 
+interface DropdownPos {
+  top: number;
+  left: number;
+}
+
 export default function OrdersTab({
   filteredOrders,
   filterStatus,
@@ -19,6 +27,26 @@ export default function OrdersTab({
   onOrderStatusChange,
   onDropdownToggle,
 }: OrdersTabProps) {
+  const [dropdownPos, setDropdownPos] = useState<DropdownPos | null>(null);
+
+  const handleBadgeClick = (e: React.MouseEvent, orderId: number) => {
+    if (openDropdownId === orderId) {
+      onDropdownToggle(null);
+      return;
+    }
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setDropdownPos({ top: rect.bottom + 4, left: rect.left });
+    onDropdownToggle(orderId);
+  };
+
+  // 외부 클릭 시 닫기
+  useEffect(() => {
+    if (openDropdownId === null) return;
+    const close = () => onDropdownToggle(null);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [openDropdownId, onDropdownToggle]);
+
   return (
     <>
       <div style={styles.pageHeader}>
@@ -27,7 +55,7 @@ export default function OrdersTab({
       </div>
 
       <div style={styles.card}>
-        <div style={styles.filterRow}>
+        <div style={{ ...styles.filterRow, borderRadius: "12px 12px 0 0" }}>
           <span style={styles.filterLabel}>상태 필터:</span>
           <select style={styles.select} value={filterStatus} onChange={e => onFilterStatusChange(e.target.value)}>
             <option value="전체">전체</option>
@@ -41,7 +69,7 @@ export default function OrdersTab({
         <table style={styles.table}>
           <thead>
             <tr>
-              {["주문 ID", "이메일", "주소", "우편번호", "총 금액", "주문 일시", "상태", "작업"].map(h => (
+              {["주문 ID", "이메일", "주소", "우편번호", "총 금액", "주문 일시", "상태"].map(h => (
                 <th key={h} style={styles.th}>{h}</th>
               ))}
             </tr>
@@ -56,38 +84,44 @@ export default function OrdersTab({
                 <td style={{ ...styles.td, fontWeight: 600 }}>₩{order.totalPrice.toLocaleString()}</td>
                 <td style={{ ...styles.td, color: "#8a7a6a" }}>{order.createdAt.replace("T", " ").slice(0, 16)}</td>
                 <td style={styles.td}>
-                  <div style={styles.dropdownWrapper}>
-                    <span
-                      style={{ ...styles.statusBadge(order.orderStatus), cursor: "pointer", userSelect: "none" }}
-                      onClick={() => onDropdownToggle(openDropdownId === order.id ? null : order.id)}
-                    >
-                      {ORDER_STATUS_LABEL[order.orderStatus]} ▾
-                    </span>
-                    {openDropdownId === order.id && (
-                      <div style={styles.dropdown}>
-                        {ORDER_STATUSES.map(s => (
-                          <div
-                            key={s}
-                            style={styles.dropdownItem}
-                            onMouseEnter={e => (e.currentTarget.style.background = "#f5f0eb")}
-                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-                            onClick={() => onOrderStatusChange(order.id, s)}
-                          >
-                            {ORDER_STATUS_LABEL[s]}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </td>
-                <td style={styles.td}>
-                  {/* 주문 삭제 API 엔드포인트 추가 시 활성화 */}
+                  <span
+                    style={{ ...styles.statusBadge(order.orderStatus), cursor: "pointer", userSelect: "none" }}
+                    onClick={e => { e.stopPropagation(); handleBadgeClick(e, order.id); }}
+                  >
+                    {ORDER_STATUS_LABEL[order.orderStatus]} ▾
+                  </span>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* 드롭다운: position fixed로 overflow 완전히 탈출 */}
+      {openDropdownId !== null && dropdownPos && (
+        <div
+          style={{
+            ...styles.dropdown,
+            position: "fixed",
+            top: dropdownPos.top,
+            left: dropdownPos.left,
+            zIndex: 9999,
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          {ORDER_STATUSES.map(s => (
+            <div
+              key={s}
+              style={styles.dropdownItem}
+              onMouseEnter={e => (e.currentTarget.style.background = "#f5f0eb")}
+              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+              onClick={() => { onOrderStatusChange(openDropdownId, s); onDropdownToggle(null); }}
+            >
+              {ORDER_STATUS_LABEL[s]}
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 }

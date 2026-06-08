@@ -1,60 +1,79 @@
 "use client";
 
-// TODO: 현재 localStorage로 임시 구현
-// 추후 Cart API 연동으로 교체 예정
-// API: GET /api/cart, POST /api/cart, PUT /api/cart/{id}, DELETE /api/cart/{id}
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Clock } from "lucide-react";
 import Link from "next/link";
 import Navbar from "../customer/_components/Navbar";
 import Footer from "../customer/_components/Footer";
-import type { CartItem } from "./types";
-import { getCart, saveCart } from "./cartUtils";
+import type { CartDisplayItem } from "./types";
+import {
+  fetchCart,
+  removeCartItem,
+  updateCartItemQty,
+  saveSelectedIds,
+} from "./cartUtils";
 
 export default function CartPage() {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [mounted, setMounted] = useState(false);
+  const [items, setItems] = useState<CartDisplayItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    setItems(getCart());
-    setMounted(true);
+  const loadCart = useCallback(async () => {
+    try {
+      const data = await fetchCart();
+      setItems(data);
+    } catch {
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const persist = (next: CartItem[]) => {
-    setItems(next);
-    saveCart(next);
-  };
+  useEffect(() => {
+    loadCart();
+  }, [loadCart]);
 
-  const updateQty = (cartId: string, delta: number) => {
-    // TODO: 추후 PUT /api/cart/{id} 로 교체 예정
-    persist(
-      items.map((item) =>
-        item.cartId === cartId
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
+  const updateQty = async (cartItemId: number, newQty: number) => {
+    if (newQty < 1) return;
+    setItems((prev) =>
+      prev.map((item) =>
+        item.cartItemId === cartItemId ? { ...item, quantity: newQty } : item
       )
     );
+    try {
+      await updateCartItemQty(cartItemId, newQty);
+    } catch {
+      await loadCart();
+    }
   };
 
-  const removeItem = (cartId: string) => {
-    // TODO: 추후 DELETE /api/cart/{id} 로 교체 예정
-    persist(items.filter((item) => item.cartId !== cartId));
+  const removeItem = async (cartItemId: number) => {
+    setItems((prev) => prev.filter((item) => item.cartItemId !== cartItemId));
+    try {
+      await removeCartItem(cartItemId);
+    } catch {
+      await loadCart();
+    }
   };
 
-  const toggleSelect = (cartId: string) => {
-    persist(
-      items.map((item) =>
-        item.cartId === cartId ? { ...item, selected: !item.selected } : item
+  const toggleSelect = (cartItemId: number) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.cartItemId === cartItemId ? { ...item, selected: !item.selected } : item
       )
     );
   };
 
   const toggleAll = () => {
     const allSelected = items.every((item) => item.selected);
-    persist(items.map((item) => ({ ...item, selected: !allSelected })));
+    setItems((prev) => prev.map((item) => ({ ...item, selected: !allSelected })));
+  };
+
+  const handleCheckout = () => {
+    const selectedIds = items.filter((i) => i.selected).map((i) => i.cartItemId);
+    saveSelectedIds(selectedIds);
+    router.push("/order");
   };
 
   const selectedItems = items.filter((item) => item.selected);
@@ -63,7 +82,19 @@ export default function CartPage() {
     0
   );
 
-  if (!mounted) return null;
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <main className="flex-1 bg-stone-50 min-h-screen py-12">
+          <div className="max-w-6xl mx-auto px-8 text-center py-32 text-stone-400">
+            불러오는 중...
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -98,7 +129,6 @@ export default function CartPage() {
               <div className="flex flex-col min-[850px]:flex-row gap-6 items-start">
                 {/* Left: Cart list */}
                 <div className="w-full min-[850px]:flex-1">
-                  {/* Table header */}
                   <div className="grid grid-cols-[28px_1fr_100px_100px_36px] items-center gap-3 px-2 py-3 border-b border-stone-200">
                     <span />
                     <span className="text-xs font-medium text-stone-400 tracking-wide">제품</span>
@@ -107,21 +137,18 @@ export default function CartPage() {
                     <span />
                   </div>
 
-                  {/* Items */}
                   {items.map((item) => (
                     <div
-                      key={item.cartId}
+                      key={item.cartItemId}
                       className="grid grid-cols-[28px_1fr_100px_100px_36px] items-center gap-3 px-2 py-5 border-b border-stone-100 last:border-b-0"
                     >
-                      {/* Checkbox */}
                       <input
                         type="checkbox"
                         checked={item.selected}
-                        onChange={() => toggleSelect(item.cartId)}
+                        onChange={() => toggleSelect(item.cartItemId)}
                         className="w-4 h-4 accent-stone-900"
                       />
 
-                      {/* Product info */}
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-16 h-16 rounded-xl bg-stone-100 flex items-center justify-center overflow-hidden flex-none">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -137,10 +164,9 @@ export default function CartPage() {
                         <span className="font-medium text-stone-900 text-sm leading-snug">{item.name}</span>
                       </div>
 
-                      {/* Quantity */}
                       <div className="flex items-center justify-center border border-stone-200 rounded-xl overflow-hidden w-fit mx-auto">
                         <button
-                          onClick={() => updateQty(item.cartId, -1)}
+                          onClick={() => updateQty(item.cartItemId, item.quantity - 1)}
                           className="w-8 h-8 flex items-center justify-center text-stone-500 hover:bg-stone-50 transition-colors text-sm"
                         >
                           −
@@ -149,21 +175,19 @@ export default function CartPage() {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => updateQty(item.cartId, 1)}
+                          onClick={() => updateQty(item.cartItemId, item.quantity + 1)}
                           className="w-8 h-8 flex items-center justify-center text-stone-500 hover:bg-stone-50 transition-colors text-sm"
                         >
                           +
                         </button>
                       </div>
 
-                      {/* Price */}
                       <span className="text-right text-sm font-semibold text-stone-900 tabular-nums">
                         {(item.price * item.quantity).toLocaleString()}원
                       </span>
 
-                      {/* Delete */}
                       <button
-                        onClick={() => removeItem(item.cartId)}
+                        onClick={() => removeItem(item.cartItemId)}
                         className="flex items-center justify-center text-stone-300 hover:text-red-400 transition-colors"
                       >
                         <Trash2 size={15} />
@@ -175,7 +199,6 @@ export default function CartPage() {
                 {/* Right: Summary */}
                 <div className="w-full min-[850px]:w-72 min-[850px]:flex-none min-[850px]:sticky min-[850px]:top-24">
                   <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-                    {/* Delivery notice */}
                     <div className="bg-stone-100 px-5 py-4 flex items-start gap-3 border-b border-stone-200">
                       <Clock size={15} className="text-amber-900 mt-0.5 flex-none" />
                       <p className="text-xs text-stone-600 leading-relaxed">
@@ -188,13 +211,12 @@ export default function CartPage() {
                     </div>
 
                     <div className="px-5 py-5">
-                      {/* Items breakdown */}
                       <div className="space-y-2.5 mb-5">
                         {selectedItems.length === 0 ? (
                           <p className="text-xs text-stone-400">선택된 상품이 없습니다</p>
                         ) : (
                           selectedItems.map((item) => (
-                            <div key={item.cartId} className="flex justify-between items-baseline gap-2">
+                            <div key={item.cartItemId} className="flex justify-between items-baseline gap-2">
                               <span className="text-sm text-stone-500 min-w-0 break-keep">
                                 {item.name}
                                 <span className="text-stone-400"> × {item.quantity}</span>
@@ -207,7 +229,6 @@ export default function CartPage() {
                         )}
                       </div>
 
-                      {/* Total */}
                       <div className="border-t border-stone-100 pt-4 flex justify-between items-center mb-5">
                         <span className="font-semibold text-stone-900">총 결제 금액</span>
                         <span className="font-bold text-stone-900 text-lg tabular-nums">
@@ -215,9 +236,8 @@ export default function CartPage() {
                         </span>
                       </div>
 
-                      {/* Buy button */}
                       <button
-                        onClick={() => router.push("/order")}
+                        onClick={handleCheckout}
                         disabled={selectedItems.length === 0}
                         className="w-full py-3 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed"
                       >

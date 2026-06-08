@@ -11,14 +11,19 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { STATUS_COLORS, ORDER_STATUS_LABEL } from "../constants";
 import { styles } from "../styles";
-import type { Order } from "../types";
+import type { Order, OrderStatus } from "../types";
 
 interface DashboardTabProps {
   todayOrders: Order[];
-  pendingCount: number;
   todayRevenue: number;
   onViewAllOrders: () => void;
+}
+
+function parseUTC(createdAt: string) {
+  const utcStr = createdAt.endsWith("Z") ? createdAt : createdAt + "Z";
+  return new Date(utcStr);
 }
 
 function buildHourlyData(orders: Order[]) {
@@ -29,23 +34,31 @@ function buildHourlyData(orders: Order[]) {
     매출: 0,
   }));
   for (const order of orders) {
-    const h = new Date(order.createdAt).getHours();
+    const h = parseUTC(order.createdAt).getHours();
     if (h <= currentHour) {
       buckets[h].주문수 += 1;
-      buckets[h].매출  += order.totalPrice;
+      if (order.orderStatus !== "CANCELLED") buckets[h].매출 += order.totalPrice;
     }
   }
   return buckets;
 }
 
-export default function DashboardTab({ todayOrders, pendingCount, todayRevenue, onViewAllOrders }: DashboardTabProps) {
-  const today = new Date().toISOString().split("T")[0];
+const STATUS_ORDER: OrderStatus[] = ["PENDING", "PROCESSING", "SHIPPING", "DELIVERED", "CANCELLED"];
+
+export default function DashboardTab({ todayOrders, todayRevenue, onViewAllOrders }: DashboardTabProps) {
+  const today = new Date().toLocaleDateString("sv");
   const hourlyData = buildHourlyData(todayOrders);
 
-  const stats = [
-    { label: "오늘의 주문", value: `${todayOrders.length}건` },
-    { label: "오늘 매출",   value: `₩${todayRevenue.toLocaleString()}` },
-    { label: "처리 중",     value: `${pendingCount}건` },
+  const statusCounts = STATUS_ORDER.map((status) => ({
+    status,
+    label: ORDER_STATUS_LABEL[status],
+    count: todayOrders.filter((o) => o.orderStatus === status).length,
+    colors: STATUS_COLORS[status],
+  }));
+
+  const topStats = [
+    { label: "오늘 총 주문", value: `${todayOrders.length}건` },
+    { label: "오늘 매출 (취소 제외)", value: `₩${todayRevenue.toLocaleString()}` },
   ];
 
   return (
@@ -60,8 +73,9 @@ export default function DashboardTab({ todayOrders, pendingCount, todayRevenue, 
         </button>
       </div>
 
-      <div style={{ ...styles.statGrid, gridTemplateColumns: "repeat(3, 1fr)" }}>
-        {stats.map((stat, i) => (
+      {/* 상단 요약 */}
+      <div style={{ ...styles.statGrid, gridTemplateColumns: "repeat(2, 1fr)" }}>
+        {topStats.map((stat, i) => (
           <div key={i} style={styles.statCard}>
             <div style={styles.statLabel}>{stat.label}</div>
             <div style={styles.statValue}>{stat.value}</div>
@@ -69,10 +83,38 @@ export default function DashboardTab({ todayOrders, pendingCount, todayRevenue, 
         ))}
       </div>
 
+      {/* 상태별 주문 현황 */}
+      <div style={{ ...styles.card, marginBottom: 20 }}>
+        <div style={styles.cardHeader}>
+          <div style={styles.cardTitle}>오늘 주문 상태별 현황</div>
+        </div>
+        <div style={{ display: "flex", padding: "16px 22px", gap: 12, flexWrap: "wrap" as const }}>
+          {statusCounts.map(({ status, label, count, colors }) => (
+            <div
+              key={status}
+              style={{
+                flex: 1,
+                minWidth: 100,
+                padding: "14px 16px",
+                borderRadius: 10,
+                background: colors?.bg ?? "#f5f5f5",
+                display: "flex",
+                flexDirection: "column" as const,
+                gap: 6,
+              }}
+            >
+              <span style={{ fontSize: 12, fontWeight: 600, color: colors?.color ?? "#555" }}>{label}</span>
+              <span style={{ fontSize: 24, fontWeight: 700, color: colors?.color ?? "#555" }}>{count}건</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 차트 */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
         <div style={styles.card}>
           <div style={styles.cardHeader}>
-            <div style={styles.cardTitle}>오늘의 주문</div>
+            <div style={styles.cardTitle}>시간대별 주문</div>
             <div style={styles.cardBadge}>{todayOrders.length}건</div>
           </div>
           <div style={{ padding: "20px 8px 16px" }}>
@@ -93,7 +135,7 @@ export default function DashboardTab({ todayOrders, pendingCount, todayRevenue, 
 
         <div style={styles.card}>
           <div style={styles.cardHeader}>
-            <div style={styles.cardTitle}>오늘 매출</div>
+            <div style={styles.cardTitle}>시간대별 매출 (취소 제외)</div>
             <div style={styles.cardBadge}>₩{todayRevenue.toLocaleString()}</div>
           </div>
           <div style={{ padding: "20px 8px 16px" }}>

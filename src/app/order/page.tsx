@@ -1,16 +1,12 @@
 "use client";
 
-// TODO: 현재 localStorage 기반으로 구현
-// 추후 API 연동으로 교체 예정
-// API: POST /api/orders
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Package, Search } from "lucide-react";
 import Navbar from "../customer/_components/Navbar";
 import Footer from "../customer/_components/Footer";
-import type { CartItem } from "../cart/types";
-import { getCart, saveCart } from "../cart/cartUtils";
+import type { CartDisplayItem } from "../cart/types";
+import { fetchCart, getSelectedIds, saveSelectedIds } from "../cart/cartUtils";
 
 declare global {
   interface Window {
@@ -38,8 +34,9 @@ function loadDaumPostcode(): Promise<void> {
 
 export default function OrderPage() {
   const router = useRouter();
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartDisplayItem[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
     email: "",
@@ -51,9 +48,21 @@ export default function OrderPage() {
   const [errors, setErrors] = useState<Partial<typeof form & { agree: string }>>({});
 
   useEffect(() => {
-    const cart = getCart();
-    setItems(cart.filter((i) => i.selected));
-    setMounted(true);
+    const load = async () => {
+      try {
+        const cart = await fetchCart();
+        const selectedIds = getSelectedIds();
+        const selected = selectedIds.length > 0
+          ? cart.filter((i) => selectedIds.includes(i.cartItemId))
+          : cart;
+        setItems(selected);
+      } catch {
+        setItems([]);
+      } finally {
+        setMounted(true);
+      }
+    };
+    load();
   }, []);
 
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
@@ -68,17 +77,35 @@ export default function OrderPage() {
     return e;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const e = validate();
     setErrors(e);
     if (Object.keys(e).length > 0) return;
 
-    // TODO: 추후 POST /api/orders 로 교체 예정
-    // 선택된 항목만 장바구니에서 제거
-    const remaining = getCart().filter((i) => !i.selected);
-    saveCart(remaining);
-
-    router.push("/order/complete");
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerEmail: form.email,
+          address: form.address + (form.addressDetail ? ` ${form.addressDetail}` : ""),
+          zipCode: form.zipCode,
+          items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+        }),
+      });
+      if (!res.ok) throw new Error("주문 실패");
+      await Promise.allSettled(
+        items.map((i) => fetch(`/cart/items/${i.cartItemId}`, { method: "DELETE" }))
+      );
+      saveSelectedIds([]);
+      window.dispatchEvent(new Event("cartUpdated"));
+      router.push("/order/complete");
+    } catch {
+      alert("주문 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -96,7 +123,7 @@ export default function OrderPage() {
         setErrors((prev) => ({ ...prev, address: undefined, zipCode: undefined }));
       },
     }).open();
-  };;
+  };
 
   if (!mounted) return null;
 
@@ -137,7 +164,6 @@ export default function OrderPage() {
                 <div>
                   <h2 className="text-base font-bold text-stone-900 mb-3">집 주소</h2>
                   <div className="space-y-3">
-                    {/* 주소 검색 */}
                     <div>
                       <div className="flex gap-2">
                         <input
@@ -161,7 +187,6 @@ export default function OrderPage() {
                       {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
                     </div>
 
-                    {/* 상세주소 + 우편번호 */}
                     <div className="flex gap-3">
                       <input
                         type="text"
@@ -199,16 +224,14 @@ export default function OrderPage() {
               {/* Right: Summary */}
               <div className="w-full min-[850px]:w-80 min-[850px]:flex-none min-[850px]:sticky min-[850px]:top-24">
                 <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-                  {/* Header */}
                   <div className="flex items-center gap-3 px-6 py-5 border-b border-stone-100">
                     <Package size={22} className="text-amber-900" />
                     <span className="font-bold text-stone-900 text-base">주문 요약</span>
                   </div>
 
-                  {/* Items */}
                   <div className="px-6 py-5 space-y-3">
                     {items.map((item) => (
-                      <div key={item.cartId} className="flex justify-between items-baseline gap-2">
+                      <div key={item.cartItemId} className="flex justify-between items-baseline gap-2">
                         <span className="text-sm text-stone-600 break-keep">
                           {item.name}
                           <span className="text-stone-400"> × {item.quantity}</span>
@@ -220,7 +243,6 @@ export default function OrderPage() {
                     ))}
                   </div>
 
-                  {/* Total */}
                   <div className="px-6 py-4 border-t border-stone-100 flex justify-between items-center">
                     <span className="font-bold text-stone-900">총 결제 금액</span>
                     <span className="font-bold text-stone-900 text-lg tabular-nums">
@@ -228,13 +250,13 @@ export default function OrderPage() {
                     </span>
                   </div>
 
-                  {/* Submit */}
                   <div className="px-6 pb-6">
                     <button
                       onClick={handleSubmit}
-                      className="w-full py-3 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors"
+                      disabled={submitting}
+                      className="w-full py-3 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      결제하기
+                      {submitting ? "처리 중..." : "결제하기"}
                     </button>
                   </div>
                 </div>
