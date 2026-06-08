@@ -59,7 +59,7 @@ export async function updateProduct(id: number, product: Omit<Product, "id" | "d
   });
   if (!res.ok) throw new Error("상품 수정 실패");
   const text = await res.text();
-  return text ? JSON.parse(text) : { id, ...product };
+  return text ? JSON.parse(text) : { id, detailPageImageUrl: "", ...product };
 }
 
 export async function deleteProduct(id: number): Promise<void> {
