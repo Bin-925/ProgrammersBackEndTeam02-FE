@@ -10,10 +10,6 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${BACKEND_URL}/api/:path*`,
       },
-      {
-        source: "/cart/:path*",
-        destination: `${BACKEND_URL}/cart/:path*`,
-      },
     ];
   },
 };
