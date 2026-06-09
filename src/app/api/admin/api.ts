@@ -1,4 +1,4 @@
-import type { Order, OrderStatus, Product } from "./types";
+import type { Order, OrderStatus, Product, RoastingLevel } from "./types";
 
 const BASE_URL = "/api";
 
@@ -41,25 +41,49 @@ export async function fetchProducts(): Promise<Product[]> {
   return res.json();
 }
 
-export async function createProduct(product: Omit<Product, "id" | "detailPageImageUrl">): Promise<Product> {
+export interface ProductPayload {
+  productName: string;
+  isDecaf: boolean;
+  roastingLevel: RoastingLevel;
+  acidity: boolean;
+  productPrice: number;
+  stock: number;
+  description: string;
+  thumbnailImageUrl: string;
+  detailPageImageUrl: string;
+}
+
+async function readErrorMessage(res: Response, fallback: string): Promise<string> {
+  try {
+    const text = await res.text();
+    if (!text) return fallback;
+    const json = JSON.parse(text);
+    return json?.message ?? json?.error ?? JSON.stringify(json);
+  } catch {
+    return fallback;
+  }
+}
+
+export async function createProduct(product: ProductPayload): Promise<Product> {
   const res = await fetch(`${BASE_URL}/admin/products`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(product),
   });
-  if (!res.ok) throw new Error("상품 추가 실패");
-  return res.json();
+  if (!res.ok) throw new Error(await readErrorMessage(res, `상품 추가 실패 (${res.status})`));
+  const text = await res.text();
+  return text ? JSON.parse(text) : { ...product, id: 0, decaf: product.isDecaf } as unknown as Product;
 }
 
-export async function updateProduct(id: number, product: Omit<Product, "id" | "detailPageImageUrl">): Promise<Product> {
+export async function updateProduct(id: number, product: ProductPayload): Promise<Product> {
   const res = await fetch(`${BASE_URL}/admin/products/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(product),
   });
-  if (!res.ok) throw new Error("상품 수정 실패");
+  if (!res.ok) throw new Error(await readErrorMessage(res, `상품 수정 실패 (${res.status})`));
   const text = await res.text();
-  return text ? JSON.parse(text) : { id, detailPageImageUrl: "", ...product };
+  return text ? JSON.parse(text) : { ...product, id, decaf: product.isDecaf } as unknown as Product;
 }
 
 export async function deleteProduct(id: number): Promise<void> {
