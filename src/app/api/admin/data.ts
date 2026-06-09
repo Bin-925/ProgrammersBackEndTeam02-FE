@@ -9,4 +9,5 @@ export const EMPTY_PRODUCT_FORM: ProductForm = {
   stock: "",
   description: "",
   thumbnailImageUrl: "",
+  detailPageImageUrl: "",
 };
