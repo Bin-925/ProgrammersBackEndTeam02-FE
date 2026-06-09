@@ -49,7 +49,7 @@ export async function addToCart(productId: number, quantity: number): Promise<vo
 }
 
 export async function removeCartItem(cartItemId: number): Promise<void> {
-  const res = await fetch(`/cart/items/${cartItemId}`, { method: "DELETE" });
+  const res = await fetch(`/api/cart/items/${cartItemId}`, { method: "DELETE" });
   if (!res.ok) throw new Error("장바구니 항목 삭제 실패");
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("cartUpdated"));
@@ -57,7 +57,7 @@ export async function removeCartItem(cartItemId: number): Promise<void> {
 }
 
 export async function updateCartItemQty(cartItemId: number, quantity: number): Promise<void> {
-  const res = await fetch(`/cart/items/${cartItemId}`, {
+  const res = await fetch(`/api/cart/items/${cartItemId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ quantity }),
