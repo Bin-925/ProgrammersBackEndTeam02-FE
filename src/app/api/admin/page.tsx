@@ -65,14 +65,15 @@ export default function AdminPage() {
     if (product) {
       setEditingProduct(product);
       setProductForm({
-        productName:      product.productName,
-        decaf:          product.decaf,
-        roastingLevel:    product.roastingLevel,
-        acidity:          product.acidity,
-        productPrice:     String(product.productPrice),
-        stock:            String(product.stock),
-        description:      product.description,
-        thumbnailImageUrl: product.thumbnailImageUrl,
+        productName:        product.productName,
+        decaf:              product.decaf,
+        roastingLevel:      product.roastingLevel,
+        acidity:            product.acidity,
+        productPrice:       String(product.productPrice),
+        stock:              String(product.stock),
+        description:        product.description,
+        thumbnailImageUrl:  product.thumbnailImageUrl,
+        detailPageImageUrl: product.detailPageImageUrl,
       });
     } else {
       setEditingProduct(null);
@@ -82,26 +83,38 @@ export default function AdminPage() {
   };
 
   const handleSaveProduct = async () => {
-    if (!productForm.productName || !productForm.productPrice) return;
+    if (!productForm.productName || !productForm.productPrice || !productForm.stock) {
+      alert("상품명, 가격, 재고는 필수 입력입니다.");
+      return;
+    }
+    const price = parseInt(productForm.productPrice);
+    const stock = parseInt(productForm.stock);
+    if (isNaN(price) || isNaN(stock)) {
+      alert("가격과 재고는 숫자로 입력해주세요.");
+      return;
+    }
+    const thumbUrl  = productForm.thumbnailImageUrl.trim();
+    const detailUrl = (productForm.detailPageImageUrl.trim() || thumbUrl);
     const payload = {
-      productName:       productForm.productName,
-      decaf:           productForm.decaf,
-      roastingLevel:     productForm.roastingLevel,
-      acidity:           productForm.acidity,
-      productPrice:      parseInt(productForm.productPrice),
-      stock:             parseInt(productForm.stock),
-      description:       productForm.description,
-      thumbnailImageUrl: productForm.thumbnailImageUrl,
+      productName:        productForm.productName.trim(),
+      isDecaf:            productForm.decaf,
+      roastingLevel:      productForm.roastingLevel,
+      acidity:            productForm.acidity,
+      productPrice:       price,
+      stock:              stock,
+      description:        productForm.description.trim(),
+      thumbnailImageUrl:  thumbUrl,
+      detailPageImageUrl: detailUrl,
     };
     try {
       if (editingProduct) {
         const updated = await updateProduct(editingProduct.id, payload);
         setProducts(prev => prev.map(p => p.id === editingProduct.id ? updated : p));
       } else {
-        const created = await createProduct(payload);
-        setProducts(prev => [...prev, created]);
+        await createProduct(payload);
       }
       setShowMenuModal(false);
+      fetchProducts().then(setProducts).catch(() => {});
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "저장 실패");
     }

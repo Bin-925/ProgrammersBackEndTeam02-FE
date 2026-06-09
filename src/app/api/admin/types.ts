@@ -34,4 +34,5 @@ export interface ProductForm {
   stock: string;
   description: string;
   thumbnailImageUrl: string;
+  detailPageImageUrl: string;
 }

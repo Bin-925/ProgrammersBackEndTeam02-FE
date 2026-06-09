@@ -60,7 +60,12 @@ export default function MenuModal({ isEditing, form, onClose, onSave, onFormChan
 
         <div style={styles.formGroup}>
           <label style={styles.formLabel}>썸네일 이미지 URL</label>
-          <input style={styles.formInput} value={form.thumbnailImageUrl} onChange={e => onFormChange("thumbnailImageUrl", e.target.value)} placeholder="https://..." />
+          <input style={styles.formInput} autoComplete="off" value={form.thumbnailImageUrl} onChange={e => onFormChange("thumbnailImageUrl", e.target.value)} placeholder="이미지 주소 입력" />
+        </div>
+
+        <div style={styles.formGroup}>
+          <label style={styles.formLabel}>상세 이미지 URL (비우면 썸네일 URL 사용)</label>
+          <input style={styles.formInput} autoComplete="off" value={form.detailPageImageUrl} onChange={e => onFormChange("detailPageImageUrl", e.target.value)} placeholder="비워두면 썸네일 이미지 자동 적용" />
         </div>
 
         <div style={styles.modalActions}>
