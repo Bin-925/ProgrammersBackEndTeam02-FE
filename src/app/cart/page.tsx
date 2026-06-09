@@ -86,8 +86,8 @@ export default function CartPage() {
     return (
       <>
         <Navbar />
-        <main className="flex-1 bg-stone-50 min-h-screen py-12">
-          <div className="max-w-6xl mx-auto px-8 text-center py-32 text-stone-400">
+        <main className="flex-1 bg-stone-50 min-h-screen py-12 dark:bg-stone-950">
+          <div className="max-w-6xl mx-auto px-8 text-center py-32 text-stone-400 dark:text-stone-500">
             불러오는 중...
           </div>
         </main>
@@ -99,16 +99,16 @@ export default function CartPage() {
   return (
     <>
       <Navbar />
-      <main className="flex-1 bg-stone-50 min-h-screen py-12">
-        <div className="max-w-6xl mx-auto px-8">
-          <h1 className="text-3xl font-bold text-stone-900 mb-3">장바구니</h1>
+      <main className="flex-1 bg-stone-50 min-h-screen py-12 dark:bg-stone-950">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-3 dark:text-white">장바구니</h1>
 
           {items.length === 0 ? (
             <div className="py-32 text-center">
-              <p className="text-stone-400 text-lg mb-4">장바구니가 비어있습니다</p>
+              <p className="text-stone-400 text-lg mb-4 dark:text-stone-500">장바구니가 비어있습니다</p>
               <Link
                 href="/#product-list"
-                className="inline-block px-6 py-2.5 rounded-xl bg-stone-800 text-white text-sm font-semibold hover:bg-stone-900 transition-colors"
+                className="inline-block px-6 py-2.5 rounded-xl bg-stone-800 text-white text-sm font-semibold hover:bg-stone-900 transition-colors dark:bg-stone-700 dark:hover:bg-stone-600"
               >
                 원두 보러가기
               </Link>
@@ -116,7 +116,7 @@ export default function CartPage() {
           ) : (
             <>
               {/* 전체선택 */}
-              <label className="flex items-center gap-2 text-sm text-stone-500 mb-5 cursor-pointer select-none w-fit">
+              <label className="flex items-center gap-2 text-sm text-stone-500 mb-5 cursor-pointer select-none w-fit dark:text-stone-400">
                 <input
                   type="checkbox"
                   checked={items.every((i) => i.selected)}
@@ -129,83 +129,75 @@ export default function CartPage() {
               <div className="flex flex-col min-[850px]:flex-row gap-6 items-start">
                 {/* Left: Cart list */}
                 <div className="w-full min-[850px]:flex-1">
-                  <div className="grid grid-cols-[28px_1fr_100px_100px_36px] items-center gap-3 px-2 py-3 border-b border-stone-200">
+                  {/* 헤더 — 데스크톱만 */}
+                  <div className="hidden sm:grid grid-cols-[28px_1fr_100px_100px_36px] items-center gap-3 px-2 py-3 border-b border-stone-200 dark:border-stone-800">
                     <span />
-                    <span className="text-xs font-medium text-stone-400 tracking-wide">제품</span>
-                    <span className="text-xs font-medium text-stone-400 tracking-wide text-center">수량</span>
-                    <span className="text-xs font-medium text-stone-400 tracking-wide text-right">금액</span>
+                    <span className="text-xs font-medium text-stone-400 tracking-wide dark:text-stone-500">제품</span>
+                    <span className="text-xs font-medium text-stone-400 tracking-wide text-center dark:text-stone-500">수량</span>
+                    <span className="text-xs font-medium text-stone-400 tracking-wide text-right dark:text-stone-500">금액</span>
                     <span />
                   </div>
 
                   {items.map((item) => (
                     <div
                       key={item.cartItemId}
-                      className="grid grid-cols-[28px_1fr_100px_100px_36px] items-center gap-3 px-2 py-5 border-b border-stone-100 last:border-b-0"
+                      className="py-4 border-b border-stone-100 last:border-b-0 dark:border-stone-800"
                     >
-                      <input
-                        type="checkbox"
-                        checked={item.selected}
-                        onChange={() => toggleSelect(item.cartItemId)}
-                        className="w-4 h-4 accent-stone-900"
-                      />
-
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-16 h-16 rounded-xl bg-stone-100 flex items-center justify-center overflow-hidden flex-none">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={item.thumbnailUrl}
-                            alt={item.name}
-                            className="w-full h-full object-contain p-1.5"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = "none";
-                            }}
-                          />
+                      {/* 데스크톱 레이아웃 */}
+                      <div className="hidden sm:grid grid-cols-[28px_1fr_100px_100px_36px] items-center gap-3 px-2">
+                        <input type="checkbox" checked={item.selected} onChange={() => toggleSelect(item.cartItemId)} className="w-4 h-4 accent-stone-900" />
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-16 h-16 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center overflow-hidden flex-none">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={item.thumbnailUrl} alt={item.name} className="w-full h-full object-contain p-1.5" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          </div>
+                          <span className="font-medium text-stone-900 text-sm leading-snug dark:text-stone-100">{item.name}</span>
                         </div>
-                        <span className="font-medium text-stone-900 text-sm leading-snug">{item.name}</span>
+                        <div className="flex items-center justify-center border border-stone-200 dark:border-stone-700 rounded-xl overflow-hidden w-fit mx-auto">
+                          <button onClick={() => updateQty(item.cartItemId, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors text-sm">−</button>
+                          <span className="w-7 text-center text-sm font-semibold text-stone-900 dark:text-stone-100">{item.quantity}</span>
+                          <button onClick={() => updateQty(item.cartItemId, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors text-sm">+</button>
+                        </div>
+                        <span className="text-right text-sm font-semibold text-stone-900 tabular-nums dark:text-stone-100">{(item.price * item.quantity).toLocaleString()}원</span>
+                        <button onClick={() => removeItem(item.cartItemId)} className="flex items-center justify-center text-stone-300 hover:text-red-400 dark:text-stone-600 dark:hover:text-red-400 transition-colors"><Trash2 size={15} /></button>
                       </div>
 
-                      <div className="flex items-center justify-center border border-stone-200 rounded-xl overflow-hidden w-fit mx-auto">
-                        <button
-                          onClick={() => updateQty(item.cartItemId, item.quantity - 1)}
-                          className="w-8 h-8 flex items-center justify-center text-stone-500 hover:bg-stone-50 transition-colors text-sm"
-                        >
-                          −
-                        </button>
-                        <span className="w-7 text-center text-sm font-semibold text-stone-900">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQty(item.cartItemId, item.quantity + 1)}
-                          className="w-8 h-8 flex items-center justify-center text-stone-500 hover:bg-stone-50 transition-colors text-sm"
-                        >
-                          +
-                        </button>
+                      {/* 모바일 레이아웃 */}
+                      <div className="sm:hidden flex gap-3 px-1">
+                        <input type="checkbox" checked={item.selected} onChange={() => toggleSelect(item.cartItemId)} className="w-4 h-4 accent-stone-900 mt-1 flex-none" />
+                        <div className="w-14 h-14 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center overflow-hidden flex-none">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={item.thumbnailUrl} alt={item.name} className="w-full h-full object-contain p-1" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-medium text-stone-900 text-sm leading-snug dark:text-stone-100">{item.name}</span>
+                            <button onClick={() => removeItem(item.cartItemId)} className="text-stone-300 hover:text-red-400 dark:text-stone-600 dark:hover:text-red-400 transition-colors flex-none"><Trash2 size={14} /></button>
+                          </div>
+                          <div className="flex items-center justify-between mt-2">
+                            <div className="flex items-center border border-stone-200 dark:border-stone-700 rounded-lg overflow-hidden">
+                              <button onClick={() => updateQty(item.cartItemId, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 text-sm">−</button>
+                              <span className="w-6 text-center text-sm font-semibold text-stone-900 dark:text-stone-100">{item.quantity}</span>
+                              <button onClick={() => updateQty(item.cartItemId, item.quantity + 1)} className="w-7 h-7 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 text-sm">+</button>
+                            </div>
+                            <span className="text-sm font-semibold text-stone-900 tabular-nums dark:text-stone-100">{(item.price * item.quantity).toLocaleString()}원</span>
+                          </div>
+                        </div>
                       </div>
-
-                      <span className="text-right text-sm font-semibold text-stone-900 tabular-nums">
-                        {(item.price * item.quantity).toLocaleString()}원
-                      </span>
-
-                      <button
-                        onClick={() => removeItem(item.cartItemId)}
-                        className="flex items-center justify-center text-stone-300 hover:text-red-400 transition-colors"
-                      >
-                        <Trash2 size={15} />
-                      </button>
                     </div>
                   ))}
                 </div>
 
                 {/* Right: Summary */}
                 <div className="w-full min-[850px]:w-72 min-[850px]:flex-none min-[850px]:sticky min-[850px]:top-24">
-                  <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-                    <div className="bg-stone-100 px-5 py-4 flex items-start gap-3 border-b border-stone-200">
-                      <Clock size={15} className="text-amber-900 mt-0.5 flex-none" />
-                      <p className="text-xs text-stone-600 leading-relaxed">
-                        당일 <span className="font-semibold text-amber-900">오후 2시 이후</span>의
+                  <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden dark:bg-stone-900 dark:border-stone-800">
+                    <div className="bg-stone-100 px-5 py-4 flex items-start gap-3 border-b border-stone-200 dark:bg-stone-800 dark:border-stone-700">
+                      <Clock size={15} className="text-amber-900 mt-0.5 flex-none dark:text-amber-400" />
+                      <p className="text-xs text-stone-600 leading-relaxed dark:text-stone-300">
+                        당일 <span className="font-semibold text-amber-900 dark:text-amber-400">오후 2시 이후</span>의
                         주문은
                         <br />
-                        <span className="font-semibold text-amber-900">다음 날</span> 배송이
+                        <span className="font-semibold text-amber-900 dark:text-amber-400">다음 날</span> 배송이
                         시작됩니다.
                       </p>
                     </div>
@@ -213,15 +205,15 @@ export default function CartPage() {
                     <div className="px-5 py-5">
                       <div className="space-y-2.5 mb-5">
                         {selectedItems.length === 0 ? (
-                          <p className="text-xs text-stone-400">선택된 상품이 없습니다</p>
+                          <p className="text-xs text-stone-400 dark:text-stone-500">선택된 상품이 없습니다</p>
                         ) : (
                           selectedItems.map((item) => (
                             <div key={item.cartItemId} className="flex justify-between items-baseline gap-2">
-                              <span className="text-sm text-stone-500 min-w-0 break-keep">
+                              <span className="text-sm text-stone-500 min-w-0 break-keep dark:text-stone-400">
                                 {item.name}
-                                <span className="text-stone-400"> × {item.quantity}</span>
+                                <span className="text-stone-400 dark:text-stone-500"> × {item.quantity}</span>
                               </span>
-                              <span className="text-sm font-medium text-stone-800 shrink-0 tabular-nums">
+                              <span className="text-sm font-medium text-stone-800 shrink-0 tabular-nums dark:text-stone-200">
                                 {(item.price * item.quantity).toLocaleString()}
                               </span>
                             </div>
@@ -229,9 +221,9 @@ export default function CartPage() {
                         )}
                       </div>
 
-                      <div className="border-t border-stone-100 pt-4 flex justify-between items-center mb-5">
-                        <span className="font-semibold text-stone-900">총 결제 금액</span>
-                        <span className="font-bold text-stone-900 text-lg tabular-nums">
+                      <div className="border-t border-stone-100 pt-4 flex justify-between items-center mb-5 dark:border-stone-800">
+                        <span className="font-semibold text-stone-900 dark:text-stone-100">총 결제 금액</span>
+                        <span className="font-bold text-stone-900 text-lg tabular-nums dark:text-white">
                           {totalPrice.toLocaleString()}원
                         </span>
                       </div>
@@ -239,7 +231,7 @@ export default function CartPage() {
                       <button
                         onClick={handleCheckout}
                         disabled={selectedItems.length === 0}
-                        className="w-full py-3 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed"
+                        className="w-full py-3 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed dark:bg-amber-700 dark:hover:bg-amber-600 dark:disabled:bg-stone-800 dark:disabled:text-stone-600"
                       >
                         구매하기
                       </button>

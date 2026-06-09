@@ -12,6 +12,23 @@ export interface Order {
   updatedAt?: string;
 }
 
+export interface OrderInGroup {
+  orderId: number;
+  totalPrice: number;
+  createdAt: string;
+  orderStatus: OrderStatus;
+}
+
+export interface GroupedOrder {
+  deliveryDate: string;
+  customerEmail: string;
+  address: string;
+  zipCode: string;
+  orderCount: number;
+  totalGroupPrice: number;
+  orders: OrderInGroup[];
+}
+
 export interface Product {
   id: number;
   productName: string;

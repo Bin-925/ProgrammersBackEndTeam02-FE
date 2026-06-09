@@ -41,16 +41,16 @@ export default function ProductList({ products }: ProductListProps) {
   });
 
   return (
-    <section id="product-list" ref={sectionRef} className="bg-stone-50 py-24">
-      <div className="max-w-6xl mx-auto px-8">
+    <section id="product-list" ref={sectionRef} className="bg-stone-50 py-12 sm:py-24 dark:bg-stone-950">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
         {/* Header */}
         <div
           className={`text-center mb-8 transition-all duration-700 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           }`}
         >
-          <h2 className="text-3xl font-bold text-stone-900 mb-3">우리의 원두</h2>
-          <p className="text-stone-500">오늘은 어떤 원두로 하루를 시작할까요?</p>
+          <h2 className="text-3xl font-bold text-stone-900 mb-3 dark:text-white">우리의 원두</h2>
+          <p className="text-stone-500 dark:text-stone-400">오늘은 어떤 원두로 하루를 시작할까요?</p>
         </div>
 
         {/* Roasting Tabs + Filters */}
@@ -60,15 +60,15 @@ export default function ProductList({ products }: ProductListProps) {
           }`}
           style={{ transitionDelay: "0.15s" }}
         >
-          <div className="flex w-full border-b border-stone-200">
+          <div className="flex w-full border-b border-stone-200 overflow-x-auto dark:border-stone-800">
             {roastingTabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 text-center pb-3 text-sm font-medium transition-colors relative ${
                   activeTab === tab
-                    ? "text-stone-900 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-stone-900"
-                    : "text-stone-400 hover:text-stone-600"
+                    ? "text-stone-900 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-stone-900 dark:text-white dark:after:bg-white"
+                    : "text-stone-400 hover:text-stone-600 dark:text-stone-600 dark:hover:text-stone-400"
                 }`}
               >
                 {tab}
@@ -85,7 +85,7 @@ export default function ProductList({ products }: ProductListProps) {
                 onChange={(e) => setFilterDecaf(e.target.checked)}
                 className="w-4 h-4 accent-stone-900"
               />
-              <span className="text-sm text-stone-600">디카페인</span>
+              <span className="text-sm text-stone-600 dark:text-stone-400">디카페인</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <input
@@ -94,20 +94,20 @@ export default function ProductList({ products }: ProductListProps) {
                 onChange={(e) => setFilterAcidity(e.target.checked)}
                 className="w-4 h-4 accent-stone-900"
               />
-              <span className="text-sm text-stone-600">산미있음</span>
+              <span className="text-sm text-stone-600 dark:text-stone-400">산미있음</span>
             </label>
           </div>
         </div>
 
         {/* Count */}
-        <p className="text-sm text-stone-500 mb-6">
-          총 <span className="font-semibold text-stone-800">{filtered.length}</span>개의 원두
+        <p className="text-sm text-stone-500 mb-6 dark:text-stone-400">
+          총 <span className="font-semibold text-stone-800 dark:text-stone-200">{filtered.length}</span>개의 원두
         </p>
 
         {/* Grid */}
         {filtered.length > 0 ? (
           <div
-            className={`grid grid-cols-2 gap-6 transition-all duration-700 ${
+            className={`grid grid-cols-2 gap-3 sm:gap-6 transition-all duration-700 ${
               visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
             style={{ transitionDelay: "0.3s" }}

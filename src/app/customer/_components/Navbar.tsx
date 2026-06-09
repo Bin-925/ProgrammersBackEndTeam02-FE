@@ -5,19 +5,19 @@ import CartIcon from "./CartIcon";
 
 export default function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-stone-200">
-      <div className="max-w-6xl mx-auto px-8 h-16 flex items-center justify-between">
+    <nav className="sticky top-0 z-50 bg-white border-b border-stone-200 dark:bg-stone-900 dark:border-stone-800">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
         <Link
           href="/"
-          className="flex items-center gap-2 text-xl font-bold text-amber-900 tracking-tight"
+          className="flex items-center gap-2 text-lg sm:text-xl font-bold text-amber-900 tracking-tight dark:text-amber-400"
         >
           코지커피
         </Link>
 
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-4 sm:gap-8">
           <Link
             href="/"
-            className="text-stone-600 hover:text-stone-900 text-sm font-medium transition-colors"
+            className="hidden sm:block text-stone-600 hover:text-stone-900 text-sm font-medium transition-colors dark:text-stone-400 dark:hover:text-stone-100"
           >
             Home
           </Link>
@@ -25,7 +25,7 @@ export default function Navbar() {
           <CartIcon />
           <Link
             href="/mypage"
-            className="text-stone-500 hover:text-stone-900 transition-colors"
+            className="text-stone-500 hover:text-stone-900 transition-colors dark:text-stone-400 dark:hover:text-stone-100"
             aria-label="마이페이지"
           >
             <User size={20} />

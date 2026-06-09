@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createProduct, deleteProduct, fetchOrders, fetchProducts, updateOrderStatus, updateProduct } from "./api";
+import { createProduct, deleteProduct, fetchGroupedOrders, fetchProducts, updateOrderStatus, updateProduct } from "./api";
 import { EMPTY_PRODUCT_FORM } from "./data";
 import { styles } from "./styles";
-import type { Order, OrderStatus, Product, ProductForm } from "./types";
+import type { GroupedOrder, Order, OrderStatus, Product, ProductForm } from "./types";
 
 import DashboardTab from "./_components/DashboardTab";
 import MenuModal    from "./_components/MenuModal";
@@ -14,10 +14,10 @@ import Sidebar      from "./_components/Sidebar";
 
 export default function AdminPage() {
   // ─── 상태 ────────────────────────────────────────────
-  const [page, setPage]           = useState("dashboard");
-  const [orders, setOrders]       = useState<Order[]>([]);
-  const [products, setProducts]   = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage]                   = useState("dashboard");
+  const [groupedOrders, setGroupedOrders] = useState<GroupedOrder[]>([]);
+  const [products, setProducts]           = useState<Product[]>([]);
+  const [isLoading, setIsLoading]         = useState(true);
 
   const [filterStatus, setFilterStatus]       = useState("전체");
   const [showMenuModal, setShowMenuModal]       = useState(false);
@@ -27,33 +27,48 @@ export default function AdminPage() {
 
   // ─── 초기 데이터 로드 ─────────────────────────────────
   useEffect(() => {
-    Promise.allSettled([fetchOrders(), fetchProducts()])
-      .then(([ordersResult, productsResult]) => {
-        if (ordersResult.status === "fulfilled") setOrders(ordersResult.value);
+    Promise.allSettled([fetchGroupedOrders(), fetchProducts()])
+      .then(([groupedResult, productsResult]) => {
+        if (groupedResult.status === "fulfilled") setGroupedOrders(groupedResult.value);
         if (productsResult.status === "fulfilled") setProducts(productsResult.value);
       })
       .finally(() => setIsLoading(false));
   }, []);
 
   // ─── 파생 값 ─────────────────────────────────────────
-  const today       = new Date().toLocaleDateString("sv"); // 로컬(KST) 날짜 "YYYY-MM-DD"
-  const todayOrders = orders.filter(o => {
-    // 백엔드가 UTC LocalDateTime을 Z 없이 내려주므로 강제로 UTC 파싱
+  // 대시보드 통계용: 그룹에서 개별 주문 flat하게 추출
+  const allOrders: Order[] = groupedOrders.flatMap(group =>
+    group.orders.map(o => ({
+      id: o.orderId,
+      customerEmail: group.customerEmail,
+      address: group.address,
+      zipCode: group.zipCode,
+      orderStatus: o.orderStatus,
+      totalPrice: o.totalPrice,
+      createdAt: o.createdAt,
+    }))
+  );
+
+  const today       = new Date().toLocaleDateString("sv");
+  const todayOrders = allOrders.filter(o => {
     const utcStr = o.createdAt.endsWith("Z") ? o.createdAt : o.createdAt + "Z";
-    const orderDate = new Date(utcStr).toLocaleDateString("sv");
-    return orderDate === today;
+    return new Date(utcStr).toLocaleDateString("sv") === today;
   });
-  const pendingCount = orders.filter(o => o.orderStatus === "PENDING" || o.orderStatus === "PROCESSING").length;
   const todayRevenue = todayOrders.filter(o => o.orderStatus !== "CANCELLED").reduce((sum, o) => sum + o.totalPrice, 0);
-  const filteredOrders = orders.filter(o =>
-    filterStatus === "전체" || o.orderStatus === filterStatus
+
+  // 필터: 그룹 내 적어도 하나의 주문이 선택된 상태와 일치하면 표시
+  const filteredGroups = groupedOrders.filter(group =>
+    filterStatus === "전체" || group.orders.some(o => o.orderStatus === filterStatus)
   );
 
   // ─── 주문 핸들러 ──────────────────────────────────────
   const handleOrderStatusChange = async (orderId: number, newStatus: OrderStatus) => {
     try {
       await updateOrderStatus(orderId, newStatus);
-      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, orderStatus: newStatus } : o));
+      setGroupedOrders(prev => prev.map(group => ({
+        ...group,
+        orders: group.orders.map(o => o.orderId === orderId ? { ...o, orderStatus: newStatus } : o),
+      })));
       setOpenDropdownId(null);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "주문 상태 변경 실패");
@@ -155,7 +170,7 @@ export default function AdminPage() {
 
             {page === "orders" && (
               <OrdersTab
-                filteredOrders={filteredOrders}
+                filteredGroups={filteredGroups}
                 filterStatus={filterStatus}
                 openDropdownId={openDropdownId}
                 onFilterStatusChange={setFilterStatus}
