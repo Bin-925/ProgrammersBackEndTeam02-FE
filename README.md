@@ -42,8 +42,7 @@
 Next.js rewrite를 프록시로 사용하여 CORS 없이 백엔드와 통신합니다.
 
 ```
-/api/*   →  https://be-production-9ee1.up.railway.app/api/*
-/cart/*  →  https://be-production-9ee1.up.railway.app/cart/*
+/api/*  →  https://be-production-9ee1.up.railway.app/api/*
 ```
 
 ### 환경변수
@@ -67,8 +66,8 @@ BACKEND_URL=http://localhost:8080
 | 상품 상세 조회 | ✅ 완료 | `GET /api/products/{id}` |
 | 장바구니 조회 | ✅ 완료 | `GET /api/cart` |
 | 장바구니 상품 추가 | ✅ 완료 | `POST /api/cart/items` |
-| 장바구니 수량 변경 | ✅ 완료 | `PATCH /cart/items/{cartItemId}` |
-| 장바구니 상품 삭제 | ✅ 완료 | `DELETE /cart/items/{cartItemId}` |
+| 장바구니 수량 변경 | ✅ 완료 | `PATCH /api/cart/items/{cartItemId}` |
+| 장바구니 상품 삭제 | ✅ 완료 | `DELETE /api/cart/items/{cartItemId}` |
 | 주문 생성 | ✅ 완료 | `POST /api/orders` |
 | 마이페이지 - 주문 조회 | ✅ 완료 | `GET /api/orders?email=` |
 | 마이페이지 - 주문 취소 | ✅ 완료 | `PATCH /api/{orderId}/status?status=CANCELLED` |

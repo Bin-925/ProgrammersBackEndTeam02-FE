@@ -96,7 +96,7 @@ export default function OrderPage() {
       });
       if (!res.ok) throw new Error("주문 실패");
       await Promise.allSettled(
-        items.map((i) => fetch(`/cart/items/${i.cartItemId}`, { method: "DELETE" }))
+        items.map((i) => fetch(`/api/cart/items/${i.cartItemId}`, { method: "DELETE" }))
       );
       saveSelectedIds([]);
       window.dispatchEvent(new Event("cartUpdated"));
