@@ -30,7 +30,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           onError={() => setImgError(true)}
         />
       ) : (
-        <div className="absolute inset-0 bg-stone-300 flex items-center justify-center">
+        <div className="absolute inset-0 bg-stone-300 dark:bg-stone-700 flex items-center justify-center">
           <ImageOff size={40} className="text-stone-400" />
         </div>
       )}
@@ -39,33 +39,33 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 from-0% via-black/30 via-[20%] to-transparent to-[50%]" />
 
       {/* Text overlay — bottom */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col gap-2">
+      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 flex flex-col gap-1 sm:gap-2">
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5">
-          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border border-white/30 ${roastingStyle[product.roasting]}`}>
+        <div className="flex flex-wrap gap-1">
+          <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium border border-white/30 ${roastingStyle[product.roasting]}`}>
             {product.roasting}
           </span>
           {product.acidity && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border border-white/30 bg-white/20 text-white">
+            <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium border border-white/30 bg-white/20 text-white">
               산미
             </span>
           )}
           {product.isDecaf && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border border-white/30 bg-white/20 text-white">
+            <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium border border-white/30 bg-white/20 text-white">
               디카페인
             </span>
           )}
         </div>
 
         {/* Name */}
-        <h3 className="text-white font-bold text-lg leading-snug">{product.name}</h3>
+        <h3 className="text-white font-bold text-sm sm:text-lg leading-snug">{product.name}</h3>
 
-        {/* Description */}
-        <p className="text-white/75 text-sm">{product.shortDescription}</p>
+        {/* Description — desktop only */}
+        <p className="hidden sm:block text-white/75 text-sm">{product.shortDescription}</p>
 
         {/* Arrow */}
-        <div className="flex justify-end mt-1">
-          <span className="text-white/80 text-xl group-hover:translate-x-1 transition-transform inline-block">
+        <div className="flex justify-end mt-0.5 sm:mt-1">
+          <span className="text-white/80 text-base sm:text-xl group-hover:translate-x-1 transition-transform inline-block">
             →
           </span>
         </div>

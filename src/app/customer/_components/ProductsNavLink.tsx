@@ -19,7 +19,7 @@ export default function ProductsNavLink() {
     <a
       href="/#product-list"
       onClick={handleClick}
-      className="text-stone-600 hover:text-stone-900 text-sm font-medium transition-colors"
+      className="text-stone-600 hover:text-stone-900 text-sm font-medium transition-colors dark:text-stone-400 dark:hover:text-stone-100"
     >
       Products
     </a>

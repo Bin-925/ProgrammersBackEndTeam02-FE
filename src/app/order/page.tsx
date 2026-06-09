@@ -130,12 +130,12 @@ export default function OrderPage() {
   return (
     <>
       <Navbar />
-      <main className="flex-1 bg-stone-50 min-h-screen py-12">
-        <div className="max-w-6xl mx-auto px-8">
-          <h1 className="text-3xl font-bold text-stone-900 mb-10">주문하기</h1>
+      <main className="flex-1 bg-stone-50 min-h-screen py-8 sm:py-12 dark:bg-stone-950">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-6 sm:mb-10 dark:text-white">주문하기</h1>
 
           {items.length === 0 ? (
-            <div className="py-24 text-center text-stone-400">
+            <div className="py-24 text-center text-stone-400 dark:text-stone-500">
               <p>주문할 상품이 없습니다</p>
             </div>
           ) : (
@@ -144,8 +144,8 @@ export default function OrderPage() {
               <div className="w-full min-[850px]:flex-1 space-y-8">
                 {/* Email */}
                 <div>
-                  <h2 className="text-base font-bold text-stone-900 mb-1">이메일 주소</h2>
-                  <p className="text-sm text-stone-400 mb-3">
+                  <h2 className="text-base font-bold text-stone-900 mb-1 dark:text-stone-100">이메일 주소</h2>
+                  <p className="text-sm text-stone-400 mb-3 dark:text-stone-500">
                     회원가입 없이 주문 가능합니다. 배송 정보는 이메일로 전송됩니다.
                   </p>
                   <input
@@ -153,8 +153,8 @@ export default function OrderPage() {
                     value={form.email}
                     onChange={set("email")}
                     placeholder="you@example.com"
-                    className={`w-full h-12 px-4 rounded-xl border bg-white text-sm focus:outline-none transition-colors ${
-                      errors.email ? "border-red-300 focus:border-red-400" : "border-stone-200 focus:border-stone-400"
+                    className={`w-full h-12 px-4 rounded-xl border bg-white text-sm focus:outline-none transition-colors dark:bg-stone-900 dark:text-stone-100 dark:placeholder-stone-500 ${
+                      errors.email ? "border-red-300 focus:border-red-400 dark:border-red-700" : "border-stone-200 focus:border-stone-400 dark:border-stone-700 dark:focus:border-stone-500"
                     }`}
                   />
                   {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
@@ -162,7 +162,7 @@ export default function OrderPage() {
 
                 {/* Address */}
                 <div>
-                  <h2 className="text-base font-bold text-stone-900 mb-3">집 주소</h2>
+                  <h2 className="text-base font-bold text-stone-900 mb-3 dark:text-stone-100">집 주소</h2>
                   <div className="space-y-3">
                     <div>
                       <div className="flex gap-2">
@@ -171,14 +171,14 @@ export default function OrderPage() {
                           value={form.address}
                           readOnly
                           placeholder="주소 검색을 눌러 주소를 입력하세요"
-                          className={`flex-1 h-12 px-4 rounded-xl border bg-stone-50 text-sm cursor-default ${
-                            errors.address ? "border-red-300" : "border-stone-200"
+                          className={`flex-1 h-12 px-4 rounded-xl border bg-stone-50 text-sm cursor-default dark:bg-stone-800 dark:text-stone-300 dark:placeholder-stone-600 ${
+                            errors.address ? "border-red-300 dark:border-red-700" : "border-stone-200 dark:border-stone-700"
                           }`}
                         />
                         <button
                           type="button"
                           onClick={handleAddressSearch}
-                          className="h-12 px-4 rounded-xl bg-stone-800 text-white text-sm font-semibold hover:bg-stone-900 transition-colors flex items-center gap-2 whitespace-nowrap"
+                          className="h-12 px-4 rounded-xl bg-stone-800 text-white text-sm font-semibold hover:bg-stone-900 transition-colors flex items-center gap-2 whitespace-nowrap dark:bg-amber-700 dark:hover:bg-amber-600"
                         >
                           <Search size={15} />
                           주소 검색
@@ -193,14 +193,14 @@ export default function OrderPage() {
                         value={form.addressDetail}
                         onChange={set("addressDetail")}
                         placeholder="상세주소"
-                        className="flex-1 h-12 px-4 rounded-xl border border-stone-200 bg-white text-sm focus:outline-none focus:border-stone-400 transition-colors"
+                        className="flex-1 h-12 px-4 rounded-xl border border-stone-200 bg-white text-sm focus:outline-none focus:border-stone-400 transition-colors dark:bg-stone-900 dark:border-stone-700 dark:text-stone-100 dark:placeholder-stone-500 dark:focus:border-stone-500"
                       />
                       <input
                         type="text"
                         value={form.zipCode}
                         readOnly
                         placeholder="우편번호"
-                        className="w-32 h-12 px-4 rounded-xl border border-stone-200 bg-stone-50 text-sm cursor-default"
+                        className="w-32 h-12 px-4 rounded-xl border border-stone-200 bg-stone-50 text-sm cursor-default dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300"
                       />
                     </div>
                   </div>
@@ -215,7 +215,7 @@ export default function OrderPage() {
                       onChange={(e) => setAgreed(e.target.checked)}
                       className="w-4 h-4 accent-stone-900"
                     />
-                    <span className="text-sm text-stone-600">결제에 동의합니다.</span>
+                    <span className="text-sm text-stone-600 dark:text-stone-400">결제에 동의합니다.</span>
                   </label>
                   {errors.agree && <p className="text-xs text-red-500 mt-1">{errors.agree}</p>}
                 </div>
@@ -223,29 +223,29 @@ export default function OrderPage() {
 
               {/* Right: Summary */}
               <div className="w-full min-[850px]:w-80 min-[850px]:flex-none min-[850px]:sticky min-[850px]:top-24">
-                <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-                  <div className="flex items-center gap-3 px-6 py-5 border-b border-stone-100">
-                    <Package size={22} className="text-amber-900" />
-                    <span className="font-bold text-stone-900 text-base">주문 요약</span>
+                <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden dark:bg-stone-900 dark:border-stone-800">
+                  <div className="flex items-center gap-3 px-6 py-5 border-b border-stone-100 dark:border-stone-800">
+                    <Package size={22} className="text-amber-900 dark:text-amber-400" />
+                    <span className="font-bold text-stone-900 text-base dark:text-white">주문 요약</span>
                   </div>
 
                   <div className="px-6 py-5 space-y-3">
                     {items.map((item) => (
                       <div key={item.cartItemId} className="flex justify-between items-baseline gap-2">
-                        <span className="text-sm text-stone-600 break-keep">
+                        <span className="text-sm text-stone-600 break-keep dark:text-stone-400">
                           {item.name}
-                          <span className="text-stone-400"> × {item.quantity}</span>
+                          <span className="text-stone-400 dark:text-stone-500"> × {item.quantity}</span>
                         </span>
-                        <span className="text-sm font-medium text-stone-800 shrink-0 tabular-nums">
+                        <span className="text-sm font-medium text-stone-800 shrink-0 tabular-nums dark:text-stone-200">
                           {(item.price * item.quantity).toLocaleString()}
                         </span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="px-6 py-4 border-t border-stone-100 flex justify-between items-center">
-                    <span className="font-bold text-stone-900">총 결제 금액</span>
-                    <span className="font-bold text-stone-900 text-lg tabular-nums">
+                  <div className="px-6 py-4 border-t border-stone-100 flex justify-between items-center dark:border-stone-800">
+                    <span className="font-bold text-stone-900 dark:text-stone-100">총 결제 금액</span>
+                    <span className="font-bold text-stone-900 text-lg tabular-nums dark:text-white">
                       {totalPrice.toLocaleString()}원
                     </span>
                   </div>
@@ -254,7 +254,7 @@ export default function OrderPage() {
                     <button
                       onClick={handleSubmit}
                       disabled={submitting}
-                      className="w-full py-3 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full py-3 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-amber-700 dark:hover:bg-amber-600"
                     >
                       {submitting ? "처리 중..." : "결제하기"}
                     </button>

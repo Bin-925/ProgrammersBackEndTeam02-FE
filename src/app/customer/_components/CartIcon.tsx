@@ -24,7 +24,7 @@ export default function CartIcon() {
   return (
     <Link
       href="/cart"
-      className="relative text-stone-500 hover:text-stone-900 transition-colors"
+      className="relative text-stone-500 hover:text-stone-900 transition-colors dark:text-stone-400 dark:hover:text-stone-100"
       aria-label="장바구니"
     >
       <ShoppingCart size={20} />

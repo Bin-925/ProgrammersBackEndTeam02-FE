@@ -3,10 +3,10 @@
 import { useRef, useState, useEffect } from "react";
 import { ORDER_STATUSES, ORDER_STATUS_LABEL } from "../constants";
 import { styles } from "../styles";
-import type { Order, OrderStatus } from "../types";
+import type { GroupedOrder, OrderStatus } from "../types";
 
 interface OrdersTabProps {
-  filteredOrders: Order[];
+  filteredGroups: GroupedOrder[];
   filterStatus: string;
   openDropdownId: number | null;
   onFilterStatusChange: (status: string) => void;
@@ -20,7 +20,7 @@ interface DropdownPos {
 }
 
 export default function OrdersTab({
-  filteredOrders,
+  filteredGroups,
   filterStatus,
   openDropdownId,
   onFilterStatusChange,
@@ -28,6 +28,8 @@ export default function OrdersTab({
   onDropdownToggle,
 }: OrdersTabProps) {
   const [dropdownPos, setDropdownPos] = useState<DropdownPos | null>(null);
+
+  const totalOrderCount = filteredGroups.reduce((sum, g) => sum + g.orders.length, 0);
 
   const handleBadgeClick = (e: React.MouseEvent, orderId: number) => {
     if (openDropdownId === orderId) {
@@ -39,7 +41,6 @@ export default function OrdersTab({
     onDropdownToggle(orderId);
   };
 
-  // 외부 클릭 시 닫기
   useEffect(() => {
     if (openDropdownId === null) return;
     const close = () => onDropdownToggle(null);
@@ -51,10 +52,13 @@ export default function OrdersTab({
     <>
       <div style={styles.pageHeader}>
         <div style={styles.pageTitle}>주문 관리</div>
-        <div style={styles.pageSubtitle}>전체 {filteredOrders.length}건의 주문</div>
+        <div style={styles.pageSubtitle}>
+          {filteredGroups.length}개 묶음 · 총 {totalOrderCount}건의 주문
+        </div>
       </div>
 
       <div style={styles.card}>
+        {/* 필터 */}
         <div style={{ ...styles.filterRow, borderRadius: "12px 12px 0 0" }}>
           <span style={styles.filterLabel}>상태 필터:</span>
           <select style={styles.select} value={filterStatus} onChange={e => onFilterStatusChange(e.target.value)}>
@@ -63,41 +67,95 @@ export default function OrdersTab({
               <option key={s} value={s}>{ORDER_STATUS_LABEL[s]}</option>
             ))}
           </select>
-          <span style={styles.filterCount}>{filteredOrders.length}건 검색됨</span>
+          <span style={styles.filterCount}>{filteredGroups.length}개 묶음 검색됨</span>
         </div>
 
         <table style={styles.table}>
           <thead>
             <tr>
-              {["주문 ID", "이메일", "주소", "우편번호", "총 금액", "주문 일시", "상태"].map(h => (
+              {["구분", "이메일", "주소", "우편번호", "배송예정일 / 주문일시", "금액", "상태"].map(h => (
                 <th key={h} style={styles.th}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {filteredOrders.map(order => (
-              <tr key={order.id}>
-                <td style={{ ...styles.td, color: "#5a4a3a", fontWeight: 500 }}>#{order.id}</td>
-                <td style={styles.td}>{order.customerEmail}</td>
-                <td style={styles.td}>{order.address}</td>
-                <td style={styles.td}>{order.zipCode}</td>
-                <td style={{ ...styles.td, fontWeight: 600 }}>₩{order.totalPrice.toLocaleString()}</td>
-                <td style={{ ...styles.td, color: "#8a7a6a" }}>{order.createdAt.replace("T", " ").slice(0, 16)}</td>
-                <td style={styles.td}>
-                  <span
-                    style={{ ...styles.statusBadge(order.orderStatus), cursor: "pointer", userSelect: "none" }}
-                    onClick={e => { e.stopPropagation(); handleBadgeClick(e, order.id); }}
+            {filteredGroups.map((group, gi) => (
+              <>
+                {/* 그룹 헤더 행 */}
+                <tr key={`group-${gi}`}>
+                  <td
+                    style={{
+                      ...styles.td,
+                      background: "#f0e8df",
+                      fontWeight: 700,
+                      color: "#1e3a1e",
+                      fontSize: 12,
+                      whiteSpace: "nowrap",
+                    }}
                   >
-                    {ORDER_STATUS_LABEL[order.orderStatus]} ▾
-                  </span>
-                </td>
-              </tr>
+                    📦 {group.orderCount}건 묶음
+                  </td>
+                  <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#2c1a0e" }}>
+                    {group.customerEmail}
+                  </td>
+                  <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#2c1a0e" }}>
+                    {group.address}
+                  </td>
+                  <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#2c1a0e" }}>
+                    {group.zipCode}
+                  </td>
+                  <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#5a4a3a", fontWeight: 600 }}>
+                    🚚 {group.deliveryDate}
+                  </td>
+                  <td style={{ ...styles.td, background: "#f0e8df", fontWeight: 700, color: "#1e3a1e" }}>
+                    ₩{group.totalGroupPrice.toLocaleString()}
+                  </td>
+                  <td style={{ ...styles.td, background: "#f0e8df" }} />
+                </tr>
+
+                {/* 개별 주문 행 */}
+                {group.orders.map(order => (
+                  <tr key={`order-${order.orderId}`}>
+                    <td style={{ ...styles.td, color: "#8a7a6a", fontSize: 12, paddingLeft: 28 }}>
+                      └ #{order.orderId}
+                    </td>
+                    <td style={{ ...styles.td, color: "#a89888", fontSize: 12 }} />
+                    <td style={{ ...styles.td, color: "#a89888", fontSize: 12 }} />
+                    <td style={{ ...styles.td, color: "#a89888", fontSize: 12 }} />
+                    <td style={{ ...styles.td, color: "#8a7a6a", fontSize: 12 }}>
+                      {order.createdAt.replace("T", " ").slice(0, 16)}
+                    </td>
+                    <td style={{ ...styles.td, fontSize: 13, fontWeight: 600, color: "#3a2a1a" }}>
+                      ₩{order.totalPrice.toLocaleString()}
+                    </td>
+                    <td style={styles.td}>
+                      <span
+                        style={{ ...styles.statusBadge(order.orderStatus), cursor: "pointer", userSelect: "none" }}
+                        onClick={e => { e.stopPropagation(); handleBadgeClick(e, order.orderId); }}
+                      >
+                        {ORDER_STATUS_LABEL[order.orderStatus]} ▾
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+
+                {/* 그룹 구분선 */}
+                <tr key={`sep-${gi}`}>
+                  <td colSpan={7} style={{ padding: 0, borderBottom: "2px solid #e8ddd4" }} />
+                </tr>
+              </>
             ))}
           </tbody>
         </table>
+
+        {filteredGroups.length === 0 && (
+          <div style={{ textAlign: "center", padding: "48px 0", color: "#8a7a6a", fontSize: 14 }}>
+            해당 조건의 주문이 없습니다
+          </div>
+        )}
       </div>
 
-      {/* 드롭다운: position fixed로 overflow 완전히 탈출 */}
+      {/* 상태 변경 드롭다운 */}
       {openDropdownId !== null && dropdownPos && (
         <div
           style={{

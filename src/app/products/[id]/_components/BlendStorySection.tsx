@@ -12,12 +12,12 @@ export default function BlendStorySection({
   const paragraphs = story.content.split("\n\n");
 
   return (
-    <section className="bg-stone-50 py-16">
+    <section className="bg-stone-50 py-16 dark:bg-stone-950">
       <div className="max-w-6xl mx-auto px-8">
         <div className="flex gap-16 items-start">
           {/* Left: Image */}
           <div className="w-80 flex-none">
-            <div className="aspect-square rounded-2xl bg-stone-200 overflow-hidden flex items-center justify-center">
+            <div className="aspect-square rounded-2xl bg-stone-200 overflow-hidden flex items-center justify-center dark:bg-stone-800">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={thumbnailUrl}
@@ -29,13 +29,13 @@ export default function BlendStorySection({
 
           {/* Right: Story */}
           <div className="flex-1 pt-2">
-            <p className="text-xs font-semibold tracking-widest text-stone-400 uppercase mb-4">
+            <p className="text-xs font-semibold tracking-widest text-stone-400 uppercase mb-4 dark:text-stone-500">
               블렌드 스토리
             </p>
-            <h2 className="text-2xl font-bold text-stone-900 mb-6">{name}</h2>
+            <h2 className="text-2xl font-bold text-stone-900 mb-6 dark:text-white">{name}</h2>
             <div className="space-y-4">
               {paragraphs.map((para, i) => (
-                <p key={i} className="text-stone-500 leading-relaxed text-sm">
+                <p key={i} className="text-stone-500 leading-relaxed text-sm dark:text-stone-400">
                   {para}
                 </p>
               ))}
