@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ImageOff } from "lucide-react";
+import { ImageOff, ArrowRight } from "lucide-react";
 import type { Product } from "../types";
 
 interface ProductCardProps {
@@ -65,9 +65,10 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Arrow */}
         <div className="flex justify-end mt-0.5 sm:mt-1">
-          <span className="text-white/80 text-base sm:text-xl group-hover:translate-x-1 transition-transform inline-block">
-            →
-          </span>
+          <ArrowRight
+            size={18}
+            className="text-white/80 group-hover:translate-x-1 transition-transform"
+          />
         </div>
       </div>
     </Link>

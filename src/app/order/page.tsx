@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 import { Package, Search } from "lucide-react";
 import Navbar from "../customer/_components/Navbar";
 import Footer from "../customer/_components/Footer";
@@ -102,7 +103,7 @@ export default function OrderPage() {
       window.dispatchEvent(new Event("cartUpdated"));
       router.push("/order/complete");
     } catch {
-      alert("주문 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+      Swal.fire({ icon: "error", title: "주문 실패", text: "주문 처리 중 오류가 발생했습니다. 다시 시도해주세요." });
     } finally {
       setSubmitting(false);
     }

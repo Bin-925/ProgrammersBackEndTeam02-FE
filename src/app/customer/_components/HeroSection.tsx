@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Coffee } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function HeroSection() {
   const [imgFailed, setImgFailed] = useState(false);
@@ -39,7 +39,7 @@ export default function HeroSection() {
               className="inline-flex items-center gap-2 bg-amber-800 text-white px-6 sm:px-7 py-3 sm:py-3.5 rounded-lg font-semibold text-sm hover:bg-amber-900 transition-colors"
             >
               원두 보러가기
-              <span aria-hidden>→</span>
+              <ArrowRight size={16} aria-hidden />
             </a>
           </div>
         </div>
