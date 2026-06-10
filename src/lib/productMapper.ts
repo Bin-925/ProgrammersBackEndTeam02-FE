@@ -35,5 +35,6 @@ export function mapApiProductToCustomer(p: ApiProduct): Product {
     tags,
     shortDescription: p.description,
     thumbnailUrl: p.thumbnailImageUrl,
+    stock: p.stock,
   };
 }

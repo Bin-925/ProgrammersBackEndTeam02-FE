@@ -12,6 +12,7 @@ export const products: Product[] = [
     tags: ["미디엄", "산미"],
     shortDescription: "균형 잡힌 산미와 달콤한 과일향",
     thumbnailUrl: "/images/colombia-narino-thumb.png",
+    stock: 99,
   },
   {
     id: 2,
@@ -24,6 +25,7 @@ export const products: Product[] = [
     tags: ["다크"],
     shortDescription: "진한 초콜릿향과 묵직한 바디감",
     thumbnailUrl: "/images/brazil-thumb.png",
+    stock: 99,
   },
   {
     id: 3,
@@ -36,6 +38,7 @@ export const products: Product[] = [
     tags: ["라이트", "산미"],
     shortDescription: "화이트와인 발효의 독특한 풍미",
     thumbnailUrl: "/images/colombia-quindio-thumb.png",
+    stock: 99,
   },
   {
     id: 4,
@@ -48,5 +51,6 @@ export const products: Product[] = [
     tags: ["디카페인", "라이트", "산미"],
     shortDescription: "과일향 풍부한 에티오피아 디카페인 원두",
     thumbnailUrl: "/images/ethiopia-thumb.png",
+    stock: 99,
   },
 ];
