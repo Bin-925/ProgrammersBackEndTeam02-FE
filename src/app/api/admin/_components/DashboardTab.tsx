@@ -76,28 +76,13 @@ export default function DashboardTab({ todayOrders, todayRevenue, bestSelling, o
       </div>
 
       {/* 상단 요약 */}
-      <div style={{ ...styles.statGrid, gridTemplateColumns: "repeat(3, 1fr)" }}>
+      <div style={{ ...styles.statGrid, gridTemplateColumns: "repeat(2, 1fr)" }}>
         {topStats.map((stat, i) => (
           <div key={i} style={styles.statCard}>
             <div style={styles.statLabel}>{stat.label}</div>
             <div style={styles.statValue}>{stat.value}</div>
           </div>
         ))}
-        <div style={{ ...styles.statCard, background: "#fef3c7", borderLeft: "4px solid #d97706" }}>
-          <div style={{ ...styles.statLabel, color: "#92400e" }}>🏆 베스트 상품</div>
-          {bestSelling ? (
-            <>
-              <div style={{ ...styles.statValue, fontSize: 16, color: "#78350f", marginBottom: 4 }}>
-                {bestSelling.productName}
-              </div>
-              <div style={{ fontSize: 12, color: "#a16207", marginTop: 2 }}>
-                판매 {bestSelling.totalSold.toLocaleString()}건 · ₩{bestSelling.totalSalesAmount.toLocaleString()}
-              </div>
-            </>
-          ) : (
-            <div style={{ ...styles.statValue, fontSize: 14, color: "#a16207" }}>데이터 없음</div>
-          )}
-        </div>
       </div>
 
       {/* 상태별 주문 현황 */}
@@ -128,7 +113,7 @@ export default function DashboardTab({ todayOrders, todayRevenue, bestSelling, o
       </div>
 
       {/* 차트 */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <div style={styles.cardTitle}>시간대별 주문</div>
@@ -170,6 +155,42 @@ export default function DashboardTab({ todayOrders, todayRevenue, bestSelling, o
             </ResponsiveContainer>
           </div>
         </div>
+      </div>
+      {/* 구분선 + 이달의 베스트 상품 */}
+      <div style={{ borderTop: "1px solid #e8ddd4", paddingTop: 24 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#5a4a3a", marginBottom: 14, letterSpacing: "0.02em" }}>
+          이달의 베스트 상품
+        </div>
+        {bestSelling ? (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 20,
+            background: "#fef3c7",
+            border: "1px solid #fde68a",
+            borderLeft: "4px solid #d97706",
+            borderRadius: 12,
+            padding: "18px 24px",
+          }}>
+            <div style={{ fontSize: 28 }}>🏆</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#78350f", marginBottom: 4 }}>
+                {bestSelling.productName}
+              </div>
+              <div style={{ fontSize: 12, color: "#a16207" }}>
+                ₩{bestSelling.productPrice.toLocaleString()} · 판매 {bestSelling.totalSold.toLocaleString()}건
+              </div>
+            </div>
+            <div style={{ textAlign: "right" as const }}>
+              <div style={{ fontSize: 11, color: "#a16207", marginBottom: 2 }}>총 매출</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#92400e" }}>
+                ₩{bestSelling.totalSalesAmount.toLocaleString()}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ color: "#a89888", fontSize: 13, padding: "16px 0" }}>데이터가 없습니다</div>
+        )}
       </div>
     </>
   );
