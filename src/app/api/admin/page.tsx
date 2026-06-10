@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { createProduct, deleteProduct, fetchGroupedOrders, fetchProducts, updateOrderStatus, updateProduct } from "./api";
+import { createProduct, deleteProduct, fetchBestSelling, fetchGroupedOrders, fetchProducts, updateOrderStatus, updateProduct } from "./api";
 import { EMPTY_PRODUCT_FORM } from "./data";
 import { styles } from "./styles";
-import type { GroupedOrder, Order, OrderStatus, Product, ProductForm } from "./types";
+import type { BestSelling, GroupedOrder, Order, OrderStatus, Product, ProductForm } from "./types";
 
 import DashboardTab from "./_components/DashboardTab";
 import MenuModal    from "./_components/MenuModal";
@@ -18,6 +18,7 @@ export default function AdminPage() {
   const [page, setPage]                   = useState("dashboard");
   const [groupedOrders, setGroupedOrders] = useState<GroupedOrder[]>([]);
   const [products, setProducts]           = useState<Product[]>([]);
+  const [bestSelling, setBestSelling]     = useState<BestSelling | null>(null);
   const [isLoading, setIsLoading]         = useState(true);
 
   const [filterStatus, setFilterStatus]       = useState("전체");
@@ -28,10 +29,11 @@ export default function AdminPage() {
 
   // ─── 초기 데이터 로드 ─────────────────────────────────
   useEffect(() => {
-    Promise.allSettled([fetchGroupedOrders(), fetchProducts()])
-      .then(([groupedResult, productsResult]) => {
+    Promise.allSettled([fetchGroupedOrders(), fetchProducts(), fetchBestSelling()])
+      .then(([groupedResult, productsResult, bestResult]) => {
         if (groupedResult.status === "fulfilled") setGroupedOrders(groupedResult.value);
         if (productsResult.status === "fulfilled") setProducts(productsResult.value);
+        if (bestResult.status === "fulfilled") setBestSelling(bestResult.value);
       })
       .finally(() => setIsLoading(false));
   }, []);
@@ -175,6 +177,7 @@ export default function AdminPage() {
               <DashboardTab
                 todayOrders={todayOrders}
                 todayRevenue={todayRevenue}
+                bestSelling={bestSelling}
                 onViewAllOrders={() => setPage("orders")}
               />
             )}

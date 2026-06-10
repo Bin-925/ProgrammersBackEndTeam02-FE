@@ -1,4 +1,4 @@
-import type { GroupedOrder, Order, OrderStatus, Product, RoastingLevel } from "./types";
+import type { BestSelling, GroupedOrder, Order, OrderStatus, Product, RoastingLevel } from "./types";
 
 const BASE_URL = "/api";
 
@@ -38,6 +38,12 @@ export async function fetchOrders(): Promise<Order[]> {
 export async function fetchGroupedOrders(): Promise<GroupedOrder[]> {
   const res = await fetch(`${BASE_URL}/admin/orders/grouped`);
   if (!res.ok) throw new Error("주문 목록 조회 실패");
+  return res.json();
+}
+
+export async function fetchBestSelling(): Promise<BestSelling | null> {
+  const res = await fetch(`${BASE_URL}/admin/products/best-selling`);
+  if (!res.ok) return null;
   return res.json();
 }
 
