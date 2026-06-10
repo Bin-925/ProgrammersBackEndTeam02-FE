@@ -3,6 +3,7 @@ import HeroSection from "./customer/_components/HeroSection";
 import WhySection from "./customer/_components/WhySection";
 import ProductList from "./customer/_components/ProductList";
 import Footer from "./customer/_components/Footer";
+import EventPopup from "./customer/_components/EventPopup";
 import { mapApiProductToCustomer, type ApiProduct } from "../lib/productMapper";
 import { products as fallbackProducts } from "./customer/data";
 
@@ -24,6 +25,7 @@ export default async function RootPage() {
 
   return (
     <>
+      <EventPopup />
       <Navbar />
       <main className="flex-1">
         <HeroSection />

@@ -27,6 +27,11 @@ export interface TastingNote {
   y: number; // 0 = light, 100 = dark
 }
 
+export interface Award {
+  title: string;
+  description: string;
+}
+
 export interface ProductDetail {
   id: number;
   name: string;
@@ -41,4 +46,5 @@ export interface ProductDetail {
   flavorProfile?: FlavorProfile;
   blendStory?: BlendStory;
   tastingNote?: TastingNote;
+  award?: Award;
 }

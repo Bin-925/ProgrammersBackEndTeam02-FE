@@ -28,6 +28,7 @@ async function fetchProduct(id: number): Promise<ProductDetail | null> {
       flavorProfile: richContent?.flavorProfile,
       blendStory: richContent?.blendStory,
       tastingNote: richContent?.tastingNote,
+      award: richContent?.award,
     };
   } catch {
     return null;

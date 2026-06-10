@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { User } from "lucide-react";
 import ProductsNavLink from "./ProductsNavLink";
 import CartIcon from "./CartIcon";
@@ -7,11 +8,9 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-stone-200 dark:bg-stone-900 dark:border-stone-800">
       <div className="max-w-6xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-lg sm:text-xl font-bold text-amber-900 tracking-tight dark:text-amber-400"
-        >
-          코지커피
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/images/logo.png" alt="Cozy Coffee" width={60} height={60} className="rounded-md" unoptimized />
+          <span className="text-lg font-bold text-stone-900 dark:text-white">코지커피</span>
         </Link>
 
         <div className="flex items-center gap-4 sm:gap-8">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Swal from "sweetalert2";
 import { Package, Truck, CheckCircle, XCircle, Clock, Search } from "lucide-react";
 import Navbar from "../customer/_components/Navbar";
 import Footer from "../customer/_components/Footer";
@@ -109,7 +110,16 @@ export default function MyPage() {
   const [cancellingId, setCancellingId] = useState<number | null>(null);
 
   const handleCancel = async (orderId: number) => {
-    if (!confirm("주문을 취소하시겠습니까?")) return;
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "주문 취소",
+      text: "주문을 취소하시겠습니까?",
+      showCancelButton: true,
+      confirmButtonText: "취소하기",
+      cancelButtonText: "돌아가기",
+      confirmButtonColor: "#d33",
+    });
+    if (!result.isConfirmed) return;
     setCancellingId(orderId);
     try {
       const res = await fetch(`/api/${orderId}/status?status=CANCELLED`, {
@@ -120,7 +130,7 @@ export default function MyPage() {
         prev.map((o) => o.orderId === orderId ? { ...o, orderStatus: "CANCELLED" } : o)
       );
     } catch {
-      alert("주문 취소에 실패했습니다. 다시 시도해주세요.");
+      Swal.fire({ icon: "error", title: "취소 실패", text: "주문 취소에 실패했습니다. 다시 시도해주세요." });
     } finally {
       setCancellingId(null);
     }
