@@ -1,8 +1,23 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
+import Swal from "sweetalert2";
 import Navbar from "../../customer/_components/Navbar";
 import Footer from "../../customer/_components/Footer";
 
 export default function OrderCompletePage() {
+  useEffect(() => {
+    Swal.fire({
+      icon: "success",
+      title: "주문이 완료되었습니다!",
+      text: "배송 정보는 입력하신 이메일로 전송됩니다.",
+      showConfirmButton: false,
+      timer: 2500,
+      timerProgressBar: true,
+    });
+  }, []);
+
   return (
     <>
       <Navbar />
