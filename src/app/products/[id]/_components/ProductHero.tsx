@@ -68,8 +68,17 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
 
   const isSoldOut = product.stock === 0;
 
+  const checkStock = () => {
+    if (product.stock !== undefined && qty > product.stock) {
+      Swal.fire({ icon: "warning", title: "재고 부족", text: `현재 재고가 ${product.stock}개 남아있습니다.` });
+      return false;
+    }
+    return true;
+  };
+
   const handleAddToCart = async () => {
     if (adding || isSoldOut) return;
+    if (!checkStock()) return;
     setAdding(true);
     try {
       await addToCart(product.id, qty);
@@ -85,6 +94,7 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
 
   const handleBuyNow = async () => {
     if (adding || isSoldOut) return;
+    if (!checkStock()) return;
     setAdding(true);
     try {
       await addToCart(product.id, qty);
@@ -103,11 +113,11 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
     <>
       <Toast visible={toast} toastKey={toastKey} />
 
-      <section className="bg-white py-16 dark:bg-stone-950">
-        <div className="max-w-6xl mx-auto px-8">
-          <div className="flex gap-16 items-start">
-            {/* Left: Image */}
-            <div className="w-1/2 flex-none">
+      <section className="bg-white py-8 sm:py-16 dark:bg-stone-950">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8">
+          <div className="flex flex-col sm:flex-row gap-8 sm:gap-16 items-start">
+            {/* Image */}
+            <div className="w-full sm:w-1/2 sm:flex-none">
               <div className="aspect-square rounded-2xl bg-stone-100 overflow-hidden flex items-center justify-center dark:bg-stone-800">
                 {!imgError ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -129,8 +139,8 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
               </div>
             </div>
 
-            {/* Right: Info */}
-            <div className="flex-1 flex flex-col gap-6 pt-2">
+            {/* Info */}
+            <div className="flex-1 w-full flex flex-col gap-5 sm:gap-6 sm:pt-2">
               {/* Award 배너 */}
               {product.award && (
                 <div className="px-4 py-3 rounded-xl bg-amber-100/70 dark:bg-stone-800">
@@ -164,7 +174,7 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
               )}
 
               {/* Name + weight */}
-              <h1 className="text-3xl font-bold text-stone-900 dark:text-white">
+              <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 dark:text-white">
                 {product.name}
                 <span className="text-lg font-normal text-stone-400 ml-3 dark:text-stone-500">{product.weight}</span>
               </h1>
@@ -190,7 +200,16 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
                       >
                         −
                       </button>
-                      <span className="w-10 text-center font-semibold text-stone-900 dark:text-stone-100">{qty}</span>
+                      <input
+                        type="number"
+                        min={1}
+                        value={qty}
+                        onChange={e => {
+                          const v = parseInt(e.target.value);
+                          if (!isNaN(v) && v >= 1) setQty(v);
+                        }}
+                        className="w-12 h-11 text-center font-semibold text-stone-900 dark:text-stone-100 bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
                       <button
                         onClick={() => setQty((q) => q + 1)}
                         className="w-10 h-11 flex items-center justify-center text-stone-500 hover:bg-stone-50 transition-colors text-lg dark:text-stone-400 dark:hover:bg-stone-800"
