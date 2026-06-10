@@ -65,36 +65,40 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
   const [toast, setToast] = useState(false);
   const [toastKey, setToastKey] = useState(0);
   const [adding, setAdding] = useState(false);
+  const [cartQty, setCartQty] = useState(0);
 
-  const isSoldOut = product.stock === 0;
+  const isSoldOut = product.stock !== undefined && product.stock === 0;
 
-  const checkStock = async () => {
+  useEffect(() => {
+    fetchCart()
+      .then(cart => {
+        const item = cart.find(i => i.productId === product.id);
+        setCartQty(item?.quantity ?? 0);
+      })
+      .catch(() => {});
+  }, [product.id]);
+
+  const checkStock = () => {
     if (product.stock === undefined) return true;
-    try {
-      const cart = await fetchCart();
-      const existing = cart.find(i => i.productId === product.id);
-      const existingQty = existing?.quantity ?? 0;
-      if (existingQty + qty > product.stock) {
-        const remaining = product.stock - existingQty;
-        if (remaining <= 0) {
-          Swal.fire({ icon: "warning", title: "재고 부족", text: `이미 장바구니에 재고 전량(${product.stock}개)이 담겨 있습니다.` });
-        } else {
-          Swal.fire({ icon: "warning", title: "재고 부족", text: `장바구니에 이미 ${existingQty}개가 담겨 있어 ${remaining}개까지만 추가할 수 있습니다.` });
-        }
-        return false;
+    if (cartQty + qty > product.stock) {
+      const remaining = product.stock - cartQty;
+      if (remaining <= 0) {
+        Swal.fire({ icon: "warning", title: "재고 부족", text: `이미 장바구니에 재고 전량(${product.stock}개)이 담겨 있습니다.` });
+      } else {
+        Swal.fire({ icon: "warning", title: "재고 부족", text: `장바구니에 이미 ${cartQty}개가 담겨 있어 ${remaining}개까지만 추가할 수 있습니다.` });
       }
-    } catch {
-      // 장바구니 조회 실패 시 통과 (백엔드에서 최종 검증)
+      return false;
     }
     return true;
   };
 
   const handleAddToCart = async () => {
     if (adding || isSoldOut) return;
-    if (!await checkStock()) return;
+    if (!checkStock()) return;
     setAdding(true);
     try {
       await addToCart(product.id, qty);
+      setCartQty(q => q + qty);
       setToastKey(k => k + 1);
       setToast(true);
       setTimeout(() => setToast(false), 3000);
@@ -107,7 +111,7 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
 
   const handleBuyNow = async () => {
     if (adding || isSoldOut) return;
-    if (!await checkStock()) return;
+    if (!checkStock()) return;
     setAdding(true);
     try {
       await addToCart(product.id, qty);

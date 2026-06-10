@@ -39,8 +39,8 @@ export default function FlavorProfileSection({
   flavorProfile: FlavorProfile;
 }) {
   return (
-    <section className="bg-white py-16 dark:bg-stone-900">
-      <div className="max-w-6xl mx-auto px-8">
+    <section className="bg-white py-8 sm:py-16 dark:bg-stone-900">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
         {/* Label */}
         <p className="text-center text-xs font-semibold tracking-widest text-stone-400 uppercase mb-4 dark:text-stone-500">
           풍미 프로필

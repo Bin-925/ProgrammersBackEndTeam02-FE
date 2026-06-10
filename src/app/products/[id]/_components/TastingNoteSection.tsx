@@ -100,15 +100,15 @@ export default function TastingNoteSection({
   currentId: number;
 }) {
   return (
-    <section className="bg-white py-16 dark:bg-stone-900">
-      <div className="max-w-6xl mx-auto px-8">
-        <div className="flex gap-16 items-start">
-          {/* Left: Text */}
-          <div className="flex-1 pt-2">
+    <section className="bg-white py-8 sm:py-16 dark:bg-stone-900">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+        <div className="flex flex-col sm:flex-row gap-8 sm:gap-16 items-start">
+          {/* Text */}
+          <div className="flex-1">
             <p className="text-xs font-semibold tracking-widest text-stone-400 uppercase mb-4 dark:text-stone-500">
               테이스팅 노트
             </p>
-            <h2 className="text-2xl font-bold text-stone-900 mb-6 leading-snug dark:text-white">
+            <h2 className="text-xl sm:text-2xl font-bold text-stone-900 mb-4 sm:mb-6 leading-snug dark:text-white">
               당신의 커피 취향을
               <br />
               찾아보세요
@@ -123,8 +123,8 @@ export default function TastingNoteSection({
             </div>
           </div>
 
-          {/* Right: Chart */}
-          <div className="w-80 flex-none flex items-center justify-center">
+          {/* Chart */}
+          <div className="w-full sm:w-80 sm:flex-none flex items-center justify-center">
             <TastingChart products={products} currentId={currentId} />
           </div>
         </div>
