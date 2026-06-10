@@ -95,15 +95,31 @@ export default function OrderPage() {
           items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
         }),
       });
-      if (!res.ok) throw new Error("주문 실패");
+      if (!res.ok) {
+        let message = "주문 처리 중 오류가 발생했습니다. 다시 시도해주세요.";
+        try {
+          const text = await res.text();
+          if (text) {
+            const json = JSON.parse(text);
+            message = json?.message ?? json?.error ?? message;
+          }
+        } catch {}
+        const isStock = res.status === 400 || res.status === 409;
+        throw Object.assign(new Error(message), { isStock });
+      }
       await Promise.allSettled(
         items.map((i) => fetch(`/api/cart/items/${i.cartItemId}`, { method: "DELETE" }))
       );
       saveSelectedIds([]);
       window.dispatchEvent(new Event("cartUpdated"));
       router.push("/order/complete");
-    } catch {
-      Swal.fire({ icon: "error", title: "주문 실패", text: "주문 처리 중 오류가 발생했습니다. 다시 시도해주세요." });
+    } catch (err) {
+      const isStock = (err as { isStock?: boolean }).isStock;
+      Swal.fire({
+        icon: "error",
+        title: isStock ? "재고 부족" : "주문 실패",
+        text: err instanceof Error ? err.message : "주문 처리 중 오류가 발생했습니다. 다시 시도해주세요.",
+      });
     } finally {
       setSubmitting(false);
     }

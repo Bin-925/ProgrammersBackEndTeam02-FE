@@ -14,11 +14,12 @@ import {
 import { ArrowRight } from "lucide-react";
 import { STATUS_COLORS, ORDER_STATUS_LABEL } from "../constants";
 import { styles } from "../styles";
-import type { Order, OrderStatus } from "../types";
+import type { BestSelling, Order, OrderStatus } from "../types";
 
 interface DashboardTabProps {
   todayOrders: Order[];
   todayRevenue: number;
+  bestSelling: BestSelling | null;
   onViewAllOrders: () => void;
 }
 
@@ -46,7 +47,7 @@ function buildHourlyData(orders: Order[]) {
 
 const STATUS_ORDER: OrderStatus[] = ["PENDING", "PROCESSING", "SHIPPING", "DELIVERED", "CANCELLED"];
 
-export default function DashboardTab({ todayOrders, todayRevenue, onViewAllOrders }: DashboardTabProps) {
+export default function DashboardTab({ todayOrders, todayRevenue, bestSelling, onViewAllOrders }: DashboardTabProps) {
   const today = new Date().toLocaleDateString("sv");
   const hourlyData = buildHourlyData(todayOrders);
 
@@ -75,13 +76,28 @@ export default function DashboardTab({ todayOrders, todayRevenue, onViewAllOrder
       </div>
 
       {/* 상단 요약 */}
-      <div style={{ ...styles.statGrid, gridTemplateColumns: "repeat(2, 1fr)" }}>
+      <div style={{ ...styles.statGrid, gridTemplateColumns: "repeat(3, 1fr)" }}>
         {topStats.map((stat, i) => (
           <div key={i} style={styles.statCard}>
             <div style={styles.statLabel}>{stat.label}</div>
             <div style={styles.statValue}>{stat.value}</div>
           </div>
         ))}
+        <div style={{ ...styles.statCard, background: "#fef3c7", borderLeft: "4px solid #d97706" }}>
+          <div style={{ ...styles.statLabel, color: "#92400e" }}>🏆 베스트 상품</div>
+          {bestSelling ? (
+            <>
+              <div style={{ ...styles.statValue, fontSize: 16, color: "#78350f", marginBottom: 4 }}>
+                {bestSelling.productName}
+              </div>
+              <div style={{ fontSize: 12, color: "#a16207", marginTop: 2 }}>
+                판매 {bestSelling.totalSold.toLocaleString()}건 · ₩{bestSelling.totalSalesAmount.toLocaleString()}
+              </div>
+            </>
+          ) : (
+            <div style={{ ...styles.statValue, fontSize: 14, color: "#a16207" }}>데이터 없음</div>
+          )}
+        </div>
       </div>
 
       {/* 상태별 주문 현황 */}
