@@ -31,9 +31,9 @@ const metrics: { label: string; key: keyof CupNoteScores }[] = [
 
 export default function CupNoteSection({ cupNote }: { cupNote: CupNote }) {
   return (
-    <section className="bg-stone-50 py-16 dark:bg-stone-950">
-      <div className="max-w-6xl mx-auto px-8">
-        <div className="bg-white rounded-2xl p-10 border border-stone-100 shadow-sm dark:bg-stone-900 dark:border-stone-800">
+    <section className="bg-stone-50 py-8 sm:py-16 dark:bg-stone-950">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+        <div className="bg-white rounded-2xl p-6 sm:p-10 border border-stone-100 shadow-sm dark:bg-stone-900 dark:border-stone-800">
           <h2 className="text-xl font-bold text-stone-900 mb-8 tracking-tight dark:text-white">
             CUP NOTE :{" "}
             <span className="font-medium text-stone-600 dark:text-stone-400">{cupNote.title}</span>
