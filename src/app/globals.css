@@ -34,3 +34,13 @@ body {
   from { transform: scaleX(1); }
   to   { transform: scaleX(0); }
 }
+
+@keyframes success-circle {
+  from { stroke-dashoffset: 289; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes success-check {
+  from { stroke-dashoffset: 80; }
+  to   { stroke-dashoffset: 0; }
+}
