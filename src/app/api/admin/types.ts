@@ -29,6 +29,14 @@ export interface GroupedOrder {
   orders: OrderInGroup[];
 }
 
+export interface BestSelling {
+  productId: number;
+  productName: string;
+  productPrice: number;
+  totalSold: number;
+  totalSalesAmount: number;
+}
+
 export interface Product {
   id: number;
   productName: string;

@@ -64,8 +64,10 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
   const [toastKey, setToastKey] = useState(0);
   const [adding, setAdding] = useState(false);
 
+  const isSoldOut = product.stock === 0;
+
   const handleAddToCart = async () => {
-    if (adding) return;
+    if (adding || isSoldOut) return;
     setAdding(true);
     try {
       await addToCart(product.id, qty);
@@ -136,6 +138,13 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
                 )}
               </div>
 
+              {/* 재고 부족 안내 */}
+              {product.stock !== undefined && product.stock > 0 && product.stock <= 10 && (
+                <p className="text-sm font-semibold text-red-500 dark:text-red-400">
+                  ⚠ 재고가 {product.stock}개 남았습니다
+                </p>
+              )}
+
               {/* Name + weight */}
               <h1 className="text-3xl font-bold text-stone-900 dark:text-white">
                 {product.name}
@@ -149,41 +158,49 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
               <p className="text-2xl font-bold text-stone-900 dark:text-white">{product.price.toLocaleString()}원</p>
 
               {/* Quantity + Cart */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center border border-stone-200 rounded-xl overflow-hidden dark:border-stone-700">
-                  <button
-                    onClick={() => setQty((q) => Math.max(1, q - 1))}
-                    className="w-10 h-11 flex items-center justify-center text-stone-500 hover:bg-stone-50 transition-colors text-lg dark:text-stone-400 dark:hover:bg-stone-800"
-                  >
-                    −
-                  </button>
-                  <span className="w-10 text-center font-semibold text-stone-900 dark:text-stone-100">{qty}</span>
-                  <button
-                    onClick={() => setQty((q) => q + 1)}
-                    className="w-10 h-11 flex items-center justify-center text-stone-500 hover:bg-stone-50 transition-colors text-lg dark:text-stone-400 dark:hover:bg-stone-800"
-                  >
-                    +
-                  </button>
+              {isSoldOut ? (
+                <div className="w-full h-12 rounded-xl bg-stone-200 dark:bg-stone-700 flex items-center justify-center text-stone-400 dark:text-stone-500 font-semibold text-sm">
+                  품절된 상품입니다
                 </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center border border-stone-200 rounded-xl overflow-hidden dark:border-stone-700">
+                      <button
+                        onClick={() => setQty((q) => Math.max(1, q - 1))}
+                        className="w-10 h-11 flex items-center justify-center text-stone-500 hover:bg-stone-50 transition-colors text-lg dark:text-stone-400 dark:hover:bg-stone-800"
+                      >
+                        −
+                      </button>
+                      <span className="w-10 text-center font-semibold text-stone-900 dark:text-stone-100">{qty}</span>
+                      <button
+                        onClick={() => setQty((q) => q + 1)}
+                        className="w-10 h-11 flex items-center justify-center text-stone-500 hover:bg-stone-50 transition-colors text-lg dark:text-stone-400 dark:hover:bg-stone-800"
+                      >
+                        +
+                      </button>
+                    </div>
 
-                <button
-                  onClick={handleAddToCart}
-                  disabled={adding}
-                  className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 border-stone-900 text-stone-900 font-semibold hover:bg-stone-50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed dark:border-amber-500 dark:text-amber-400 dark:hover:bg-stone-900"
-                >
-                  <ShoppingCart size={16} />
-                  {adding ? "담는 중..." : "장바구니 담기"}
-                </button>
-              </div>
+                    <button
+                      onClick={handleAddToCart}
+                      disabled={adding}
+                      className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 border-stone-900 text-stone-900 font-semibold hover:bg-stone-50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed dark:border-amber-500 dark:text-amber-400 dark:hover:bg-stone-900"
+                    >
+                      <ShoppingCart size={16} />
+                      {adding ? "담는 중..." : "장바구니 담기"}
+                    </button>
+                  </div>
 
-              {/* Buy now */}
-              <button
-                onClick={handleAddToCart}
-                disabled={adding}
-                className="w-full h-12 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-amber-700 dark:hover:bg-amber-600"
-              >
-                바로 구매하기
-              </button>
+                  {/* Buy now */}
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={adding}
+                    className="w-full h-12 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-amber-700 dark:hover:bg-amber-600"
+                  >
+                    바로 구매하기
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

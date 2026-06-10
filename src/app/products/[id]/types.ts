@@ -42,6 +42,7 @@ export interface ProductDetail {
   acidity: boolean;
   shortDescription: string;
   thumbnailUrl: string;
+  stock?: number;
   cupNote?: CupNote;
   flavorProfile?: FlavorProfile;
   blendStory?: BlendStory;

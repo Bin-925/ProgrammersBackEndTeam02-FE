@@ -9,4 +9,5 @@ export interface Product {
   tags: string[];
   shortDescription: string;
   thumbnailUrl: string;
+  stock: number;
 }

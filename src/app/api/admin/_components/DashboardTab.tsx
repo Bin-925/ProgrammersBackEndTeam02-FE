@@ -14,11 +14,12 @@ import {
 import { ArrowRight } from "lucide-react";
 import { STATUS_COLORS, ORDER_STATUS_LABEL } from "../constants";
 import { styles } from "../styles";
-import type { Order, OrderStatus } from "../types";
+import type { BestSelling, Order, OrderStatus } from "../types";
 
 interface DashboardTabProps {
   todayOrders: Order[];
   todayRevenue: number;
+  bestSelling: BestSelling | null;
   onViewAllOrders: () => void;
 }
 
@@ -46,7 +47,7 @@ function buildHourlyData(orders: Order[]) {
 
 const STATUS_ORDER: OrderStatus[] = ["PENDING", "PROCESSING", "SHIPPING", "DELIVERED", "CANCELLED"];
 
-export default function DashboardTab({ todayOrders, todayRevenue, onViewAllOrders }: DashboardTabProps) {
+export default function DashboardTab({ todayOrders, todayRevenue, bestSelling, onViewAllOrders }: DashboardTabProps) {
   const today = new Date().toLocaleDateString("sv");
   const hourlyData = buildHourlyData(todayOrders);
 
@@ -112,7 +113,7 @@ export default function DashboardTab({ todayOrders, todayRevenue, onViewAllOrder
       </div>
 
       {/* 차트 */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <div style={styles.cardTitle}>시간대별 주문</div>
@@ -154,6 +155,42 @@ export default function DashboardTab({ todayOrders, todayRevenue, onViewAllOrder
             </ResponsiveContainer>
           </div>
         </div>
+      </div>
+      {/* 구분선 + 이달의 베스트 상품 */}
+      <div style={{ borderTop: "1px solid #e8ddd4", paddingTop: 24 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#5a4a3a", marginBottom: 14, letterSpacing: "0.02em" }}>
+          이달의 베스트 상품
+        </div>
+        {bestSelling ? (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 20,
+            background: "#fef3c7",
+            border: "1px solid #fde68a",
+            borderLeft: "4px solid #d97706",
+            borderRadius: 12,
+            padding: "18px 24px",
+          }}>
+            <div style={{ fontSize: 28 }}>🏆</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#78350f", marginBottom: 4 }}>
+                {bestSelling.productName}
+              </div>
+              <div style={{ fontSize: 12, color: "#a16207" }}>
+                ₩{bestSelling.productPrice.toLocaleString()} · 판매 {bestSelling.totalSold.toLocaleString()}건
+              </div>
+            </div>
+            <div style={{ textAlign: "right" as const }}>
+              <div style={{ fontSize: 11, color: "#a16207", marginBottom: 2 }}>총 매출</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#92400e" }}>
+                ₩{bestSelling.totalSalesAmount.toLocaleString()}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ color: "#a89888", fontSize: 13, padding: "16px 0" }}>데이터가 없습니다</div>
+        )}
       </div>
     </>
   );

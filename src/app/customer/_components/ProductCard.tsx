@@ -17,6 +17,7 @@ const roastingStyle: Record<Product["roasting"], string> = {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [imgError, setImgError] = useState(false);
+  const isSoldOut = product.stock === 0;
 
   return (
     <Link href={`/products/${product.id}`} className="relative aspect-[3/4] rounded-2xl overflow-hidden group cursor-pointer block">
@@ -37,6 +38,16 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* Dark gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 from-0% via-black/30 via-[20%] to-transparent to-[50%]" />
+
+      {/* 품절 오버레이 */}
+      {isSoldOut && (
+        <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center gap-2">
+          <span className="text-white/40 text-xs font-medium tracking-widest uppercase">Sold Out</span>
+          <span className="px-6 py-2 rounded-full bg-white/15 border border-white/30 text-white text-base font-bold tracking-widest backdrop-blur-sm">
+            품 절
+          </span>
+        </div>
+      )}
 
       {/* Text overlay — bottom */}
       <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 flex flex-col gap-1 sm:gap-2">
