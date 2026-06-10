@@ -43,7 +43,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {isSoldOut && (
         <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center gap-2">
           <span className="text-white/40 text-xs font-medium tracking-widest uppercase">Sold Out</span>
-          <span className="px-6 py-2 rounded-full bg-red-600/80 border border-red-400/50 text-white text-base font-bold tracking-widest backdrop-blur-sm">
+          <span className="px-6 py-2 rounded-full bg-white/15 border border-white/30 text-white text-base font-bold tracking-widest backdrop-blur-sm">
             품 절
           </span>
         </div>
