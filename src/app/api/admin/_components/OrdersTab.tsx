@@ -135,48 +135,72 @@ export default function OrdersTab({
               return (
                 <>
                   {/* 묶음 그룹 헤더 */}
-                  <tr
-                    key={`group-${gi}`}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => toggleGroup(gi)}
-                  >
-                    <td
-                      style={{
-                        ...styles.td,
-                        background: "#f0e8df",
-                        fontWeight: 700,
-                        color: "#1e3a1e",
-                        fontSize: 12,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                        {isExpanded
-                          ? <ChevronDown size={13} style={{ color: "#5a4a3a" }} />
-                          : <ChevronRight size={13} style={{ color: "#5a4a3a" }} />
-                        }
-                        {group.orderCount}건 묶음
-                      </span>
-                    </td>
-                    <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#2c1a0e" }}>
-                      {group.customerEmail}
-                    </td>
-                    <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#2c1a0e" }}>
-                      {group.address}
-                    </td>
-                    <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#2c1a0e" }}>
-                      {group.zipCode}
-                    </td>
-                    <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#5a4a3a", fontWeight: 600 }}>
-                      🚚 {group.deliveryDate}
-                    </td>
-                    <td style={{ ...styles.td, background: "#f0e8df", fontWeight: 700, color: "#1e3a1e" }}>
-                      ₩{group.totalGroupPrice.toLocaleString()}
-                    </td>
-                    <td style={{ ...styles.td, background: "#f0e8df", fontSize: 12, color: "#8a7a6a" }}>
-                      {isExpanded ? "접기" : "펼치기"}
-                    </td>
-                  </tr>
+                  {(() => {
+                    const activeTotal = group.orders
+                      .filter(o => o.orderStatus !== "CANCELLED")
+                      .reduce((sum, o) => sum + o.totalPrice, 0);
+                    const hasCancelled = group.orders.some(o => o.orderStatus === "CANCELLED");
+                    const statusCounts = group.orders.reduce((acc, o) => {
+                      acc[o.orderStatus] = (acc[o.orderStatus] || 0) + 1;
+                      return acc;
+                    }, {} as Record<string, number>);
+
+                    return (
+                      <tr
+                        key={`group-${gi}`}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => toggleGroup(gi)}
+                      >
+                        <td
+                          style={{
+                            ...styles.td,
+                            background: "#f0e8df",
+                            fontWeight: 700,
+                            color: "#1e3a1e",
+                            fontSize: 12,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                            {isExpanded
+                              ? <ChevronDown size={13} style={{ color: "#5a4a3a" }} />
+                              : <ChevronRight size={13} style={{ color: "#5a4a3a" }} />
+                            }
+                            {group.orderCount}건 묶음
+                          </span>
+                        </td>
+                        <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#2c1a0e" }}>
+                          {group.customerEmail}
+                        </td>
+                        <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#2c1a0e" }}>
+                          {group.address}
+                        </td>
+                        <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#2c1a0e" }}>
+                          {group.zipCode}
+                        </td>
+                        <td style={{ ...styles.td, background: "#f0e8df", fontSize: 13, color: "#5a4a3a", fontWeight: 600 }}>
+                          🚚 {group.deliveryDate}
+                        </td>
+                        <td style={{ ...styles.td, background: "#f0e8df", fontWeight: 700, color: "#1e3a1e" }}>
+                          ₩{activeTotal.toLocaleString()}
+                          {hasCancelled && (
+                            <span style={{ display: "block", fontSize: 10, fontWeight: 400, color: "#a89888", marginTop: 1 }}>
+                              취소 포함
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ ...styles.td, background: "#f0e8df" }}>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+                            {(Object.entries(statusCounts) as [OrderStatus, number][]).map(([s, cnt]) => (
+                              <span key={s} style={{ ...styles.statusBadge(s), fontSize: 10, padding: "1px 6px" }}>
+                                {ORDER_STATUS_LABEL[s]}{cnt > 1 ? ` ${cnt}` : ""}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })()}
 
                   {/* 개별 주문 행 (펼쳐졌을 때만) */}
                   {isExpanded && group.orders.map(ord => (

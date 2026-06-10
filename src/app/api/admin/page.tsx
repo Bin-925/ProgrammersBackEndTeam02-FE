@@ -57,10 +57,11 @@ export default function AdminPage() {
   });
   const todayRevenue = todayOrders.filter(o => o.orderStatus !== "CANCELLED").reduce((sum, o) => sum + o.totalPrice, 0);
 
-  // 필터: 그룹 내 적어도 하나의 주문이 선택된 상태와 일치하면 표시
-  const filteredGroups = groupedOrders.filter(group =>
-    filterStatus === "전체" || group.orders.some(o => o.orderStatus === filterStatus)
-  );
+  // 필터 + 정렬: 그룹 내 주문을 orderId 오름차순으로 정렬하고, 그룹 자체도 첫 주문 기준 오름차순
+  const filteredGroups = groupedOrders
+    .filter(group => filterStatus === "전체" || group.orders.some(o => o.orderStatus === filterStatus))
+    .map(group => ({ ...group, orders: [...group.orders].sort((a, b) => a.orderId - b.orderId) }))
+    .sort((a, b) => a.orders[0].orderId - b.orders[0].orderId);
 
   // ─── 주문 핸들러 ──────────────────────────────────────
   const handleOrderStatusChange = async (orderId: number, newStatus: OrderStatus) => {
