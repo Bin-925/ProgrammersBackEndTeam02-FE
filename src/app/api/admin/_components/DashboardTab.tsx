@@ -11,6 +11,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { ArrowRight } from "lucide-react";
 import { STATUS_COLORS, ORDER_STATUS_LABEL } from "../constants";
 import { styles } from "../styles";
 import type { Order, OrderStatus } from "../types";
@@ -69,7 +70,7 @@ export default function DashboardTab({ todayOrders, todayRevenue, onViewAllOrder
           <div style={styles.pageSubtitle}>{today} · 오늘의 현황</div>
         </div>
         <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={onViewAllOrders}>
-          전체 주문 보기 →
+          전체 주문 보기 <ArrowRight size={14} style={{ marginLeft: 6, display: "inline", verticalAlign: "middle" }} />
         </button>
       </div>
 

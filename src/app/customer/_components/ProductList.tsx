@@ -83,7 +83,7 @@ export default function ProductList({ products }: ProductListProps) {
                 type="checkbox"
                 checked={filterDecaf}
                 onChange={(e) => setFilterDecaf(e.target.checked)}
-                className="w-4 h-4 accent-stone-900"
+                className="w-5 h-5 accent-stone-900"
               />
               <span className="text-sm text-stone-600 dark:text-stone-400">디카페인</span>
             </label>
@@ -92,7 +92,7 @@ export default function ProductList({ products }: ProductListProps) {
                 type="checkbox"
                 checked={filterAcidity}
                 onChange={(e) => setFilterAcidity(e.target.checked)}
-                className="w-4 h-4 accent-stone-900"
+                className="w-5 h-5 accent-stone-900"
               />
               <span className="text-sm text-stone-600 dark:text-stone-400">산미있음</span>
             </label>

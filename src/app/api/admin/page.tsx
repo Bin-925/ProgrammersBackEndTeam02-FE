@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import { createProduct, deleteProduct, fetchGroupedOrders, fetchProducts, updateOrderStatus, updateProduct } from "./api";
 import { EMPTY_PRODUCT_FORM } from "./data";
 import { styles } from "./styles";
@@ -56,10 +57,11 @@ export default function AdminPage() {
   });
   const todayRevenue = todayOrders.filter(o => o.orderStatus !== "CANCELLED").reduce((sum, o) => sum + o.totalPrice, 0);
 
-  // 필터: 그룹 내 적어도 하나의 주문이 선택된 상태와 일치하면 표시
-  const filteredGroups = groupedOrders.filter(group =>
-    filterStatus === "전체" || group.orders.some(o => o.orderStatus === filterStatus)
-  );
+  // 필터 + 정렬: 그룹 내 주문을 orderId 오름차순으로 정렬하고, 그룹 자체도 첫 주문 기준 오름차순
+  const filteredGroups = groupedOrders
+    .filter(group => filterStatus === "전체" || group.orders.some(o => o.orderStatus === filterStatus))
+    .map(group => ({ ...group, orders: [...group.orders].sort((a, b) => a.orderId - b.orderId) }))
+    .sort((a, b) => a.orders[0].orderId - b.orders[0].orderId);
 
   // ─── 주문 핸들러 ──────────────────────────────────────
   const handleOrderStatusChange = async (orderId: number, newStatus: OrderStatus) => {
@@ -71,7 +73,7 @@ export default function AdminPage() {
       })));
       setOpenDropdownId(null);
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "주문 상태 변경 실패");
+      Swal.fire({ icon: "error", title: "변경 실패", text: err instanceof Error ? err.message : "주문 상태 변경 실패" });
     }
   };
 
@@ -99,13 +101,13 @@ export default function AdminPage() {
 
   const handleSaveProduct = async () => {
     if (!productForm.productName || !productForm.productPrice || !productForm.stock) {
-      alert("상품명, 가격, 재고는 필수 입력입니다.");
+      Swal.fire({ icon: "warning", title: "입력 오류", text: "상품명, 가격, 재고는 필수 입력입니다." });
       return;
     }
     const price = parseInt(productForm.productPrice);
     const stock = parseInt(productForm.stock);
     if (isNaN(price) || isNaN(stock)) {
-      alert("가격과 재고는 숫자로 입력해주세요.");
+      Swal.fire({ icon: "warning", title: "입력 오류", text: "가격과 재고는 숫자로 입력해주세요." });
       return;
     }
     const thumbUrl  = productForm.thumbnailImageUrl.trim();
@@ -131,17 +133,26 @@ export default function AdminPage() {
       setShowMenuModal(false);
       fetchProducts().then(setProducts).catch(() => {});
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "저장 실패");
+      Swal.fire({ icon: "error", title: "저장 실패", text: err instanceof Error ? err.message : "저장 중 오류가 발생했습니다." });
     }
   };
 
   const handleDeleteProduct = async (id: number) => {
-    if (!confirm("상품을 삭제하시겠습니까?")) return;
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "상품 삭제",
+      text: "상품을 삭제하시겠습니까?",
+      showCancelButton: true,
+      confirmButtonText: "삭제",
+      cancelButtonText: "취소",
+      confirmButtonColor: "#d33",
+    });
+    if (!result.isConfirmed) return;
     try {
       await deleteProduct(id);
       setProducts(prev => prev.filter(p => p.id !== id));
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "삭제 실패");
+      Swal.fire({ icon: "error", title: "삭제 실패", text: err instanceof Error ? err.message : "삭제 중 오류가 발생했습니다." });
     }
   };
 
