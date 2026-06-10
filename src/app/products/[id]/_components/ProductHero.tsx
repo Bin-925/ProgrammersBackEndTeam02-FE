@@ -68,17 +68,30 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
 
   const isSoldOut = product.stock === 0;
 
-  const checkStock = () => {
-    if (product.stock !== undefined && qty > product.stock) {
-      Swal.fire({ icon: "warning", title: "재고 부족", text: `현재 재고가 ${product.stock}개 남아있습니다.` });
-      return false;
+  const checkStock = async () => {
+    if (product.stock === undefined) return true;
+    try {
+      const cart = await fetchCart();
+      const existing = cart.find(i => i.productId === product.id);
+      const existingQty = existing?.quantity ?? 0;
+      if (existingQty + qty > product.stock) {
+        const remaining = product.stock - existingQty;
+        if (remaining <= 0) {
+          Swal.fire({ icon: "warning", title: "재고 부족", text: `이미 장바구니에 재고 전량(${product.stock}개)이 담겨 있습니다.` });
+        } else {
+          Swal.fire({ icon: "warning", title: "재고 부족", text: `장바구니에 이미 ${existingQty}개가 담겨 있어 ${remaining}개까지만 추가할 수 있습니다.` });
+        }
+        return false;
+      }
+    } catch {
+      // 장바구니 조회 실패 시 통과 (백엔드에서 최종 검증)
     }
     return true;
   };
 
   const handleAddToCart = async () => {
     if (adding || isSoldOut) return;
-    if (!checkStock()) return;
+    if (!await checkStock()) return;
     setAdding(true);
     try {
       await addToCart(product.id, qty);
@@ -94,7 +107,7 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
 
   const handleBuyNow = async () => {
     if (adding || isSoldOut) return;
-    if (!checkStock()) return;
+    if (!await checkStock()) return;
     setAdding(true);
     try {
       await addToCart(product.id, qty);
