@@ -6,7 +6,8 @@ import { ShoppingCart, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import type { ProductDetail } from "../types";
-import { addToCart } from "../../../cart/cartUtils";
+import { addToCart, fetchCart, saveSelectedIds } from "../../../cart/cartUtils";
+import { useRouter } from "next/navigation";
 
 function Toast({ visible, toastKey }: { visible: boolean; toastKey: number }) {
   const [mounted, setMounted] = useState(false);
@@ -58,6 +59,7 @@ function Toast({ visible, toastKey }: { visible: boolean; toastKey: number }) {
 }
 
 export default function ProductHero({ product }: { product: ProductDetail }) {
+  const router = useRouter();
   const [qty, setQty] = useState(1);
   const [imgError, setImgError] = useState(false);
   const [toast, setToast] = useState(false);
@@ -76,6 +78,22 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
       setTimeout(() => setToast(false), 3000);
     } catch {
       Swal.fire({ icon: "error", title: "담기 실패", text: "장바구니 추가에 실패했습니다. 다시 시도해주세요." });
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (adding || isSoldOut) return;
+    setAdding(true);
+    try {
+      await addToCart(product.id, qty);
+      const cart = await fetchCart();
+      const item = cart.find(i => i.productId === product.id);
+      if (item) saveSelectedIds([item.cartItemId]);
+      router.push("/order");
+    } catch {
+      Swal.fire({ icon: "error", title: "오류", text: "주문 페이지로 이동하는 데 실패했습니다. 다시 시도해주세요." });
     } finally {
       setAdding(false);
     }
@@ -193,7 +211,7 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
 
                   {/* Buy now */}
                   <button
-                    onClick={handleAddToCart}
+                    onClick={handleBuyNow}
                     disabled={adding}
                     className="w-full h-12 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-amber-700 dark:hover:bg-amber-600"
                   >
