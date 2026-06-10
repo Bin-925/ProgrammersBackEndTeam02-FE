@@ -7,6 +7,7 @@ import Link from "next/link";
 import Navbar from "../customer/_components/Navbar";
 import Footer from "../customer/_components/Footer";
 import type { CartDisplayItem } from "./types";
+import Swal from "sweetalert2";
 import {
   fetchCart,
   removeCartItem,
@@ -16,13 +17,22 @@ import {
 
 export default function CartPage() {
   const [items, setItems] = useState<CartDisplayItem[]>([]);
+  const [stockMap, setStockMap] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const loadCart = useCallback(async () => {
     try {
-      const data = await fetchCart();
-      setItems(data);
+      const [data, productsRes] = await Promise.allSettled([
+        fetchCart(),
+        fetch("https://be-production-9ee1.up.railway.app/api/products").then(r => r.ok ? r.json() : []),
+      ]);
+      if (data.status === "fulfilled") setItems(data.value);
+      if (productsRes.status === "fulfilled") {
+        const map: Record<number, number> = {};
+        for (const p of productsRes.value) map[p.id] = p.stock;
+        setStockMap(map);
+      }
     } catch {
       setItems([]);
     } finally {
@@ -34,8 +44,13 @@ export default function CartPage() {
     loadCart();
   }, [loadCart]);
 
-  const updateQty = async (cartItemId: number, newQty: number) => {
+  const updateQty = async (cartItemId: number, newQty: number, productId: number) => {
     if (newQty < 1) return;
+    const stock = stockMap[productId];
+    if (stock !== undefined && newQty > stock) {
+      Swal.fire({ icon: "warning", title: "재고 부족", text: `재고가 ${stock}개 남아있습니다.` });
+      return;
+    }
     setItems((prev) =>
       prev.map((item) =>
         item.cartItemId === cartItemId ? { ...item, quantity: newQty } : item
@@ -154,9 +169,9 @@ export default function CartPage() {
                           <span className="font-medium text-stone-900 text-sm leading-snug dark:text-stone-100">{item.name}</span>
                         </div>
                         <div className="flex items-center justify-center border border-stone-200 dark:border-stone-700 rounded-xl overflow-hidden w-fit mx-auto">
-                          <button onClick={() => updateQty(item.cartItemId, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors text-sm">−</button>
+                          <button onClick={() => updateQty(item.cartItemId, item.quantity - 1, item.productId)} className="w-8 h-8 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors text-sm">−</button>
                           <span className="w-7 text-center text-sm font-semibold text-stone-900 dark:text-stone-100">{item.quantity}</span>
-                          <button onClick={() => updateQty(item.cartItemId, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors text-sm">+</button>
+                          <button onClick={() => updateQty(item.cartItemId, item.quantity + 1, item.productId)} className="w-8 h-8 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors text-sm">+</button>
                         </div>
                         <span className="text-right text-sm font-semibold text-stone-900 tabular-nums dark:text-stone-100">{(item.price * item.quantity).toLocaleString()}원</span>
                         <button onClick={() => removeItem(item.cartItemId)} className="flex items-center justify-center text-stone-300 hover:text-red-400 dark:text-stone-600 dark:hover:text-red-400 transition-colors"><Trash2 size={15} /></button>
@@ -176,9 +191,9 @@ export default function CartPage() {
                           </div>
                           <div className="flex items-center justify-between mt-2">
                             <div className="flex items-center border border-stone-200 dark:border-stone-700 rounded-lg overflow-hidden">
-                              <button onClick={() => updateQty(item.cartItemId, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 text-sm">−</button>
+                              <button onClick={() => updateQty(item.cartItemId, item.quantity - 1, item.productId)} className="w-7 h-7 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 text-sm">−</button>
                               <span className="w-6 text-center text-sm font-semibold text-stone-900 dark:text-stone-100">{item.quantity}</span>
-                              <button onClick={() => updateQty(item.cartItemId, item.quantity + 1)} className="w-7 h-7 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 text-sm">+</button>
+                              <button onClick={() => updateQty(item.cartItemId, item.quantity + 1, item.productId)} className="w-7 h-7 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 text-sm">+</button>
                             </div>
                             <span className="text-sm font-semibold text-stone-900 tabular-nums dark:text-stone-100">{(item.price * item.quantity).toLocaleString()}원</span>
                           </div>

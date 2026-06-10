@@ -1,3 +1,4 @@
+import Swal from "sweetalert2";
 import { ROASTING_LEVEL_LABEL } from "../constants";
 import { styles } from "../styles";
 import type { Product } from "../types";
@@ -57,7 +58,10 @@ export default function MenuTab({ products, onAddNew, onEdit, onDelete }: MenuTa
                 <td style={styles.td}>{product.stock}개</td>
                 <td style={styles.td}>
                   <button style={styles.btnEdit}   onClick={() => onEdit(product)}>수정</button>
-                  <button style={styles.btnDanger} onClick={() => onDelete(product.id)}>삭제</button>
+                  <button style={styles.btnDanger} onClick={async () => {
+                    const result = await Swal.fire({ title: "상품을 삭제하시겠습니까?", text: product.productName, icon: "warning", showCancelButton: true, confirmButtonText: "삭제", cancelButtonText: "취소", confirmButtonColor: "#dc2626" });
+                    if (result.isConfirmed) onDelete(product.id);
+                  }}>삭제</button>
                 </td>
               </tr>
             ))}
