@@ -41,9 +41,10 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* 품절 오버레이 */}
       {isSoldOut && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <span className="px-4 py-1.5 rounded-full bg-white/20 border border-white/40 text-white text-sm font-bold tracking-wide backdrop-blur-sm">
-            품절
+        <div className="absolute inset-0 bg-black/55 flex flex-col items-center justify-center gap-2">
+          <span className="text-white/40 text-xs font-medium tracking-widest uppercase">Sold Out</span>
+          <span className="px-6 py-2 rounded-full bg-red-600/80 border border-red-400/50 text-white text-base font-bold tracking-widest backdrop-blur-sm">
+            품 절
           </span>
         </div>
       )}

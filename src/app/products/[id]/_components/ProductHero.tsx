@@ -138,6 +138,13 @@ export default function ProductHero({ product }: { product: ProductDetail }) {
                 )}
               </div>
 
+              {/* 재고 부족 안내 */}
+              {product.stock !== undefined && product.stock > 0 && product.stock <= 10 && (
+                <p className="text-sm font-semibold text-red-500 dark:text-red-400">
+                  ⚠ 재고가 {product.stock}개 남았습니다
+                </p>
+              )}
+
               {/* Name + weight */}
               <h1 className="text-3xl font-bold text-stone-900 dark:text-white">
                 {product.name}
