@@ -161,13 +161,13 @@ export default function CartPage() {
                       {/* 데스크톱 레이아웃 */}
                       <div className="hidden sm:grid grid-cols-[28px_1fr_100px_100px_36px] items-center gap-3 px-2">
                         <input type="checkbox" checked={item.selected} onChange={() => toggleSelect(item.cartItemId)} className="w-4 h-4 accent-stone-900" />
-                        <div className="flex items-center gap-3 min-w-0">
+                        <Link href={`/products/${item.productId}`} className="flex items-center gap-3 min-w-0 group">
                           <div className="w-16 h-16 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center overflow-hidden flex-none">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={item.thumbnailUrl} alt={item.name} className="w-full h-full object-contain p-1.5" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                           </div>
-                          <span className="font-medium text-stone-900 text-sm leading-snug dark:text-stone-100">{item.name}</span>
-                        </div>
+                          <span className="font-medium text-stone-900 text-sm leading-snug group-hover:underline dark:text-stone-100">{item.name}</span>
+                        </Link>
                         <div className="flex items-center justify-center border border-stone-200 dark:border-stone-700 rounded-xl overflow-hidden w-fit mx-auto">
                           <button onClick={() => updateQty(item.cartItemId, item.quantity - 1, item.productId)} className="w-8 h-8 flex items-center justify-center text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-stone-800 transition-colors text-sm">−</button>
                           <span className="w-7 text-center text-sm font-semibold text-stone-900 dark:text-stone-100">{item.quantity}</span>
@@ -180,13 +180,13 @@ export default function CartPage() {
                       {/* 모바일 레이아웃 */}
                       <div className="sm:hidden flex gap-3 px-1">
                         <input type="checkbox" checked={item.selected} onChange={() => toggleSelect(item.cartItemId)} className="w-4 h-4 accent-stone-900 mt-1 flex-none" />
-                        <div className="w-14 h-14 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center overflow-hidden flex-none">
+                        <Link href={`/products/${item.productId}`} className="w-14 h-14 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center overflow-hidden flex-none">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={item.thumbnailUrl} alt={item.name} className="w-full h-full object-contain p-1" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                        </div>
+                        </Link>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
-                            <span className="font-medium text-stone-900 text-sm leading-snug dark:text-stone-100">{item.name}</span>
+                            <Link href={`/products/${item.productId}`} className="font-medium text-stone-900 text-sm leading-snug hover:underline dark:text-stone-100">{item.name}</Link>
                             <button onClick={() => removeItem(item.cartItemId)} className="text-stone-300 hover:text-red-400 dark:text-stone-600 dark:hover:text-red-400 transition-colors flex-none"><Trash2 size={14} /></button>
                           </div>
                           <div className="flex items-center justify-between mt-2">
