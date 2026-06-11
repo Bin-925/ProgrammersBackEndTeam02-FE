@@ -1,4 +1,4 @@
-# ☕ Coffee Shop — Team02 Frontend
+# ☕ 코지커피 (Cozy Coffee) — Frontend
 
 스페셜티 커피 원두 쇼핑몰 프론트엔드 프로젝트입니다.  
 고객용 쇼핑 페이지와 관리자용 어드민 페이지로 구성되어 있으며, Railway에 배포된 Spring Boot 백엔드와 완전 연동되어 있습니다.
@@ -9,9 +9,10 @@
 
 | 분류 | 기술 |
 |------|------|
-| Framework | Next.js 16 (App Router) |
+| Framework | Next.js 16 (App Router, Turbopack) |
 | Language | TypeScript 5 |
 | Styling | Tailwind CSS v4 |
+| Alert / Dialog | SweetAlert2 |
 | Icons | Lucide React |
 | Font | Pretendard (@fontsource/pretendard) |
 | Package Manager | pnpm |
@@ -22,16 +23,22 @@
 ## 주요 기능
 
 ### 고객 페이지
-- **메인 홈** — Hero 배너, 브랜드 소개, 원두 상품 목록 (백엔드 API 조회)
-- **상품 상세** — 원두 정보(API), Cup Note / Flavor Profile / Blend Story / Tasting Note (정적 데이터 병합)
-- **장바구니** — 상품 담기 / 수량 조절 / 선택 삭제 (백엔드 쿠키 기반 cart_token 연동)
-- **주문** — 이메일 + 주소 입력 (다음 우편번호 API), 주문 생성 후 장바구니 자동 비움
-- **마이페이지** — 이메일로 주문 내역 조회, PENDING/PROCESSING 상태 주문 취소 가능
+
+- **메인 홈** — Hero 배너, 브랜드 소개, 원두 상품 목록 (백엔드 API 조회), 품절 상품 오버레이 표시
+- **상품 상세** — 원두 정보(API), Cup Note / Flavor Profile / Blend Story / Tasting Note, 재고 10개 이하 경고 문구, 수량 직접 입력 지원
+- **장바구니** — 상품 담기 / 수량 조절 / 선택 삭제, 재고 초과 수량 변경 차단 (백엔드 쿠키 기반 cart_token 연동)
+- **바로 구매하기** — 해당 상품만 선택된 상태로 주문 페이지 즉시 진입
+- **주문** — 이메일 + 주소 입력 (다음 우편번호 API), 재고 부족 시 오류 안내, 주문 생성 후 장바구니 자동 비움
+- **주문 완료** — SVG 애니메이션 체크마크 (circle → checkmark 순차 드로잉)
+- **마이페이지** — 이메일로 주문 내역 조회, PENDING / PROCESSING 상태 주문 취소 가능
+- **다크모드** — 전 페이지 지원
+- **모바일 반응형** — 전 페이지 지원
 
 ### 어드민 페이지 (`/api/admin`, `/admin` 접속 시 자동 리다이렉트)
-- **대시보드** — 오늘 주문 수 / 오늘 매출(취소 제외) / 상태별 주문 현황 (PENDING·PROCESSING·SHIPPING·DELIVERED·CANCELLED)
-- **주문 관리** — 상태 필터링, 드롭다운으로 주문 상태 변경
-- **메뉴 관리** — 상품 추가 / 수정 / 삭제
+
+- **대시보드** — 오늘 주문 수 / 오늘 매출(취소 제외) / 시간대별 주문·매출 차트 / 이달의 베스트 상품
+- **주문 관리** — 상태 필터링, 드롭다운으로 주문 상태 변경, 묶음 주문 그룹화 표시 (토글 확장, 취소 제외 금액 합산)
+- **메뉴 관리** — 상품 추가 / 수정 / 삭제 (삭제 시 확인창)
 
 ---
 
@@ -62,21 +69,23 @@ BACKEND_URL=http://localhost:8080
 
 | 기능 | 상태 | 엔드포인트 |
 |------|------|-----------|
-| 상품 목록 조회 | ✅ 완료 | `GET /api/products` |
-| 상품 상세 조회 | ✅ 완료 | `GET /api/products/{id}` |
-| 장바구니 조회 | ✅ 완료 | `GET /api/cart` |
-| 장바구니 상품 추가 | ✅ 완료 | `POST /api/cart/items` |
-| 장바구니 수량 변경 | ✅ 완료 | `PATCH /api/cart/items/{cartItemId}` |
-| 장바구니 상품 삭제 | ✅ 완료 | `DELETE /api/cart/items/{cartItemId}` |
-| 주문 생성 | ✅ 완료 | `POST /api/orders` |
-| 마이페이지 - 주문 조회 | ✅ 완료 | `GET /api/orders?email=` |
-| 마이페이지 - 주문 취소 | ✅ 완료 | `PATCH /api/{orderId}/status?status=CANCELLED` |
-| 어드민 - 주문 목록 조회 | ✅ 완료 | `GET /api/admin/orders` |
-| 어드민 - 주문 상태 변경 | ✅ 완료 | `PATCH /api/admin/{orderId}/status` |
-| 어드민 - 상품 목록 조회 | ✅ 완료 | `GET /api/admin/products` |
-| 어드민 - 상품 추가 | ✅ 완료 | `POST /api/admin/products` |
-| 어드민 - 상품 수정 | ✅ 완료 | `PATCH /api/admin/products/{id}` |
-| 어드민 - 상품 삭제 | ✅ 완료 | `DELETE /api/admin/products/{id}` |
+| 상품 목록 조회 | ✅ | `GET /api/products` |
+| 상품 상세 조회 | ✅ | `GET /api/products/{id}` |
+| 장바구니 조회 | ✅ | `GET /api/cart` |
+| 장바구니 상품 추가 | ✅ | `POST /api/cart/items` |
+| 장바구니 수량 변경 | ✅ | `PATCH /api/cart/items/{cartItemId}` |
+| 장바구니 상품 삭제 | ✅ | `DELETE /api/cart/items/{cartItemId}` |
+| 주문 생성 | ✅ | `POST /api/orders` |
+| 마이페이지 - 주문 조회 | ✅ | `GET /api/orders?email=` |
+| 마이페이지 - 주문 취소 | ✅ | `PATCH /api/{orderId}/status?status=CANCELLED` |
+| 어드민 - 주문 목록 조회 | ✅ | `GET /api/admin/orders` |
+| 어드민 - 묶음 주문 조회 | ✅ | `GET /api/admin/orders/grouped` |
+| 어드민 - 주문 상태 변경 | ✅ | `PATCH /api/admin/{orderId}/status` |
+| 어드민 - 상품 목록 조회 | ✅ | `GET /api/admin/products` |
+| 어드민 - 상품 추가 | ✅ | `POST /api/admin/products` |
+| 어드민 - 상품 수정 | ✅ | `PATCH /api/admin/products/{id}` |
+| 어드민 - 상품 삭제 | ✅ | `DELETE /api/admin/products/{id}` |
+| 어드민 - 베스트 상품 | ✅ | `GET /api/admin/products/best-selling` |
 
 ---
 
@@ -92,7 +101,7 @@ FE/
 │   └── app/
 │       ├── page.tsx             # 메인 홈 (/)
 │       ├── layout.tsx           # 루트 레이아웃
-│       ├── globals.css
+│       ├── globals.css          # 전역 스타일 + 애니메이션 keyframes
 │       │
 │       ├── admin/               # /admin → /api/admin 리다이렉트
 │       │
@@ -103,9 +112,9 @@ FE/
 │       │   │   ├── MenuTab.tsx
 │       │   │   ├── OrdersTab.tsx
 │       │   │   └── Sidebar.tsx
-│       │   ├── api.ts           # 어드민 API 호출 함수
+│       │   ├── api.ts
 │       │   ├── constants.ts
-│       │   ├── data.ts          # 폼 초기값
+│       │   ├── data.ts
 │       │   ├── page.tsx
 │       │   ├── styles.ts
 │       │   └── types.ts
@@ -120,17 +129,17 @@ FE/
 │       │   │   ├── ProductList.tsx
 │       │   │   ├── ProductsNavLink.tsx
 │       │   │   └── WhySection.tsx
-│       │   ├── data.ts          # 상품 타입 정의 및 로스팅 라벨
+│       │   ├── data.ts
 │       │   └── types.ts
 │       │
 │       ├── cart/                # 장바구니 (/cart)
-│       │   ├── cartUtils.ts     # 백엔드 API 기반 장바구니 유틸
+│       │   ├── cartUtils.ts
 │       │   ├── page.tsx
 │       │   └── types.ts
 │       │
 │       ├── order/               # 주문 (/order)
 │       │   ├── complete/
-│       │   │   └── page.tsx     # 주문 완료 페이지
+│       │   │   └── page.tsx     # 주문 완료 (SVG 애니메이션 체크마크)
 │       │   └── page.tsx
 │       │
 │       ├── mypage/              # 마이페이지 (/mypage)
@@ -146,7 +155,7 @@ FE/
 │               │   ├── FlavorProfileSection.tsx
 │               │   ├── ProductHero.tsx
 │               │   └── TastingNoteSection.tsx
-│               ├── data.ts      # 상품 상세 정적 콘텐츠 (Cup Note 등)
+│               ├── data.ts
 │               ├── page.tsx
 │               └── types.ts
 ├── next.config.ts               # 백엔드 프록시 rewrite 설정
@@ -159,33 +168,26 @@ FE/
 
 ## 시작하기
 
-### 패키지 설치
-
 ```bash
+# 패키지 설치
 pnpm install
-```
 
-### 개발 서버 실행
-
-```bash
+# 개발 서버 실행
 pnpm dev
-```
 
-브라우저에서 [http://localhost:3000](http://localhost:3000) 으로 접속  
-어드민: [http://localhost:3000/api/admin](http://localhost:3000/api/admin)
-
-### 빌드
-
-```bash
+# 빌드 & 프로덕션 실행
 pnpm build
 pnpm start
 ```
+
+- 고객 페이지: [http://localhost:3000](http://localhost:3000)
+- 어드민 페이지: [http://localhost:3000/api/admin](http://localhost:3000/api/admin)
 
 ---
 
 ## 외부 API
 
-- **다음 우편번호 API** — 주문 페이지 주소 검색에 사용
+- **다음 우편번호 API** — 주문 페이지 주소 검색
 - **Railway 백엔드** — Spring Boot 기반 REST API 서버
 
 ---
